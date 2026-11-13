@@ -1,4 +1,53 @@
 {
-  "_comment": "已核验信源清单。verified_offers 初始为空数组，代表尚无经官方页面核验的真实额度；这是诚实空表，不是示例数据，也不用于自证能力。每条记录的字段与填写方法见 sources/TEMPLATE.md。",
-  "verified_offers": []
+  "_comment": "第一批已核验信源（2026-11-13）。仅收录经官方页面原文逐字确认的记录；二手聚合站/公众号数字一律不采。字段与核验方法见 sources/TEMPLATE.md，逐条证据与裁决见 sources/核验报告-第一批.md。下划线开头字段为私有核验元数据，构建时会被剥离，不进入公开发布的 offers.json。",
+  "verified_offers": [
+    {
+      "provider": "腾讯混元生图",
+      "modality": "image",
+      "quota": { "unit": "count", "amount": 50 },
+      "watermark": "conditional",
+      "commercial_rights": "unknown",
+      "queue_speed": "normal",
+      "resolution": "variable",
+      "note": "官方计费概述原文「混元生图 50次」。为首次开通服务后一次性发放的免费资源包，有效期 1 年，非每日或每月循环额度；耗尽或到期默认不自动转后付费。官方同页提示混元大模型相关功能正逐步迁移至 TokenHub，迁移后原平台不再新增模型能力并停止支持新购模型服务，政策可能调整。水印、商用授权、排队速度、分辨率四项官方计费页未说明：watermark=conditional 与 queue_speed=normal 为中性占位、非实测值，commercial_rights=unknown 为诚实未知；官方 FAQ 仅说明在遵守服务条款前提下可自主处理生成图像，具体商用范围需另核对服务条款。以官方最新公告为准。",
+      "_verified_at": "2026-11-13T08:57:23+00:00",
+      "_anchor_checked_at": "2026-11-13T08:57:23+00:00",
+      "_official_homepage_confirmed": true,
+      "_verified_by": "AI 辅助核验，待用户拍板",
+      "_source_url": "https://cloud.tencent.com/document/product/1729/105925",
+      "_source_title": "混元生图计费概述（腾讯云官方）"
+    },
+    {
+      "provider": "腾讯混元生图（文生图轻量版）",
+      "modality": "image",
+      "quota": { "unit": "count", "amount": 50 },
+      "watermark": "conditional",
+      "commercial_rights": "unknown",
+      "queue_speed": "normal",
+      "resolution": "variable",
+      "note": "官方计费概述原文「文生图轻量版 50次」；与「混元生图」接口独立计费、资源不互通。同为首次开通一次性免费资源包，有效期 1 年，非循环额度；耗尽默认不自动转后付费。同样受 TokenHub 迁移提示影响。防坑四字段官方计费页未说明，取值口径同上一条，均为中性占位或诚实未知，非实测值。以官方最新公告为准。",
+      "_verified_at": "2026-11-13T08:57:23+00:00",
+      "_anchor_checked_at": "2026-11-13T08:57:23+00:00",
+      "_official_homepage_confirmed": true,
+      "_verified_by": "AI 辅助核验，待用户拍板",
+      "_source_url": "https://cloud.tencent.com/document/product/1729/105925",
+      "_source_title": "混元生图计费概述（腾讯云官方）"
+    },
+    {
+      "provider": "Recraft",
+      "modality": "image",
+      "quota": { "unit": "count", "amount": 3 },
+      "watermark": "conditional",
+      "commercial_rights": "restricted",
+      "queue_speed": "normal",
+      "resolution": "variable",
+      "note": "官方定价页 Free 档 $0，原文「3 generations per style per day」「3 image uploads daily」「Up to 2 images per generation」「All images are public」「No commercial use」「No parallel generation」「Recraft models only」「Personal use only」。count=3 指每个风格每天 3 次生成，不是全天总量；每次最多 2 张图，且受风格数影响，折算按 3 张计会低估实际可用量，此处不夸大。商用权官方明确禁止商用，故 restricted。水印官方定价页未提及，conditional 为中性占位；排队速度仅注明不可并行，未提供速度数据，normal 为中性占位；分辨率未提及，variable 为中性占位。以官方最新公告为准。",
+      "_verified_at": "2026-11-13T08:57:23+00:00",
+      "_anchor_checked_at": "2026-11-13T08:57:23+00:00",
+      "_official_homepage_confirmed": true,
+      "_verified_by": "AI 辅助核验，待用户拍板",
+      "_source_url": "https://www.recraft.ai/pricing",
+      "_source_title": "Pricing and plans - Recraft（官方）"
+    }
+  ]
 }
