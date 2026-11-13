@@ -1,0 +1,38 @@
+{
+  "_comment": "数据脑侧的确定性契约副本。enums / required_offer_fields / schema_major_supported / stale_threshold_hours 必须与技能端 references/valuation-constants.json 及 references/data-schema.md 保持一致；任一侧变更须同步本文件并重跑 --selftest。",
+  "contract_version": "1.0.0",
+  "schema_version": "1.0",
+  "schema_major_supported": "1",
+  "stale_threshold_hours": "2",
+  "max_verified_age_days": 7,
+  "source_note": "本表仅收录经官方页面核验的公开免费额度信息；额度与政策随时可能调整，一律以各平台官方最新公告为准，不构成任何收益或使用承诺。",
+  "enums": {
+    "modality": ["image", "video"],
+    "quota_unit": ["count", "second", "credit"],
+    "watermark": ["none", "visible", "conditional"],
+    "commercial_rights": ["allowed", "restricted", "unknown"],
+    "queue_speed": ["instant", "fast", "normal", "slow"],
+    "resolution": ["1k", "2k", "4k", "720p", "1080p", "variable"]
+  },
+  "required_offer_fields": [
+    "provider",
+    "modality",
+    "quota",
+    "watermark",
+    "commercial_rights",
+    "queue_speed",
+    "resolution"
+  ],
+  "forbidden_substrings": [
+    "AIHOT",
+    "卡兹克",
+    "永久免费",
+    "无限额度",
+    "保证薅到",
+    "稳定收益",
+    "加微信",
+    "公众号",
+    "http://",
+    "https://"
+  ]
+}

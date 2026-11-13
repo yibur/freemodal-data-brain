@@ -1,0 +1,4 @@
+# 无必需第三方依赖。
+# 构建与自检全程使用 Python 3 标准库（json / datetime / decimal / argparse / pathlib / tempfile）。
+# 无可选增强依赖；本仓库不解析 YAML，故不引入 PyYAML。
+# GitHub Actions 的 ubuntu-latest + setup-python 3.13 即可直接运行，无需 pip install。

@@ -1,0 +1,4 @@
+{
+  "_comment": "已核验信源清单。verified_offers 初始为空数组，代表尚无经官方页面核验的真实额度；这是诚实空表，不是示例数据，也不用于自证能力。每条记录的字段与填写方法见 sources/TEMPLATE.md。",
+  "verified_offers": []
+}

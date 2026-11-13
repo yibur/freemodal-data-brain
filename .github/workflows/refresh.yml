@@ -1,0 +1,54 @@
+name: Refresh offers feed
+
+on:
+  schedule:
+    - cron: '17 * * * *'
+  workflow_dispatch:
+  push:
+    paths:
+      - 'sources/**'
+      - 'schema/**'
+      - 'scripts/**'
+
+permissions:
+  contents: write
+
+concurrency:
+  group: refresh-offers-feed
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.13'
+
+      - name: Self test
+        run: |
+          python scripts/build_feed.py --selftest
+          python scripts/build_feed.py --fixtures
+
+      - name: Build feed
+        run: python scripts/build_feed.py --input sources/offers.json --output offers.json --json
+
+      - name: Verify published payload
+        run: python scripts/build_feed.py --output offers.json --verify --json
+
+      - name: Commit if changed
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -f offers.json
+          if git diff --cached --quiet; then
+            echo "No change, skip commit"
+          else
+            git commit -m "chore: refresh offers feed [skip ci]"
+            git push
+          fi
