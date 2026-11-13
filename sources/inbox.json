@@ -1,0 +1,4 @@
+{
+  "_comment": "线索区：只记「听说」，不参与编译，不会进入公开 offers.json。核实通过后重写为 sources/offers.json 的完整记录，并把这里的 status 改为 promoted。条目形状：{\"provider\": \"平台名\", \"claim\": \"听说的额度内容\", \"heard_from\": \"来源\", \"heard_at\": \"YYYY-MM-DD\", \"status\": \"unverified\"}。禁止把线索原样搬进正式清单。",
+  "inbox": []
+}

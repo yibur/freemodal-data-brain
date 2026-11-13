@@ -13,8 +13,13 @@
     "watermark": ["none", "visible", "conditional"],
     "commercial_rights": ["allowed", "restricted", "unknown"],
     "queue_speed": ["instant", "fast", "normal", "slow"],
-    "resolution": ["1k", "2k", "4k", "720p", "1080p", "variable"]
+    "resolution": ["1k", "2k", "4k", "720p", "1080p", "variable"],
+    "offer_status": ["verified", "pending_official", "expired", "discontinued"],
+    "money_basis": ["face_value", "unit_price", "official_price", "none"]
   },
+  "default_offer_status": "verified",
+  "default_money_basis": "official_price",
+  "optional_offer_fields": ["status", "deadline", "money_basis", "note"],
   "required_offer_fields": [
     "provider",
     "modality",
@@ -23,6 +28,44 @@
     "commercial_rights",
     "queue_speed",
     "resolution"
+  ],
+  "rejection_rules": [
+    {
+      "id": "rebate_invite",
+      "label": "返利/邀请",
+      "keywords": ["返利", "返现", "邀请码", "邀请好友", "拉新奖励", "分销", "推广佣金"],
+      "reason": "收益依赖拉人或消费返现，不是可直接使用的免费额度"
+    },
+    {
+      "id": "relay_proxy",
+      "label": "中转站/逆向",
+      "keywords": ["中转站", "API 中转", "api中转", "中转 API", "逆向接口", "破解版", "代理转发"],
+      "reason": "转售或绕过官方计费，来源与稳定性不可核验，且违反平台条款"
+    },
+    {
+      "id": "secondhand_credit",
+      "label": "二手/共享额度",
+      "keywords": ["二手积分", "转让积分", "共享账号", "合租账号", "代充"],
+      "reason": "额度归属不清晰，存在账号被回收与条款违规风险"
+    },
+    {
+      "id": "sms_multi_account",
+      "label": "接码/多开",
+      "keywords": ["接码", "多开", "虚拟号", "批量注册", "换号注册"],
+      "reason": "以规避风控方式获取额度，违反平台服务条款"
+    },
+    {
+      "id": "requires_topup",
+      "label": "需先充值",
+      "keywords": ["需先充值", "必须先充值", "充值后赠送", "首充", "充值满", "预存"],
+      "reason": "需要先付费才能拿到，属于付费促销而不是零成本免费额度"
+    },
+    {
+      "id": "stacking_rule",
+      "label": "叠加口径",
+      "keywords": ["可叠加", "叠加使用", "重复领取", "与其他优惠同享"],
+      "reason": "叠加后的可用量无法单独核算，容易把宣传上限当成实际额度"
+    }
   ],
   "forbidden_substrings": [
     "AIHOT",

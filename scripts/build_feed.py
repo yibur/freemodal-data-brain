@@ -18,7 +18,7 @@ import json
 import math
 import os
 import tempfile
-from datetime import datetime, timedelta, timezone
+from datetime import date, datetime, timedelta, timezone
 from decimal import Decimal
 from pathlib import Path
 
@@ -70,6 +70,37 @@ def current_now(injected=None):
     return datetime.now(timezone.utc)
 
 
+def parse_deadline(value):
+    """解析 YYYY-MM-DD 截止日期；格式错或非法日期返回 None。"""
+    if not isinstance(value, str):
+        return None
+    try:
+        return date.fromisoformat(value.strip())
+    except ValueError:
+        return None
+
+
+def effective_status(offer, contract, now):
+    """缺省 status 按 verified 读取；verified / pending_official 超过 deadline 自动置 expired。"""
+    status = offer.get("status", contract.get("default_offer_status", "verified"))
+    deadline = parse_deadline(offer.get("deadline"))
+    if deadline is not None and status in ("verified", "pending_official") and now.date() > deadline:
+        return "expired"
+    return status
+
+
+def scan_rejections(offer, contract):
+    """返回命中的拒绝规则列表 [(rule, keyword)]；空列表表示未命中。"""
+    text = json.dumps(offer, ensure_ascii=False, sort_keys=True)
+    hits = []
+    for rule in contract.get("rejection_rules", []):
+        for keyword in rule.get("keywords", []):
+            if keyword and keyword in text:
+                hits.append((rule, keyword))
+                break
+    return hits
+
+
 def validate_offer(offer, idx, contract):
     """返回问题列表；空列表表示该条合法。对齐技能端 validate_payload 的核心校验。"""
     problems = []
@@ -105,6 +136,27 @@ def validate_offer(offer, idx, contract):
                     problems.append(prefix + ".quota.amount 须为有限数字（不接受 NaN / Infinity）")
                 elif Decimal(str(amt)) < 0:
                     problems.append(prefix + ".quota.amount 不得为负")
+            if "unit_price_cny" in quota:
+                up = quota["unit_price_cny"]
+                if isinstance(up, bool) or not isinstance(up, (int, float)):
+                    problems.append(prefix + ".quota.unit_price_cny 须为数字")
+                elif not math.isfinite(up) or Decimal(str(up)) <= 0:
+                    problems.append(prefix + ".quota.unit_price_cny 须为有限正数")
+    if "status" in offer:
+        status = offer["status"]
+        if not isinstance(status, str) or status not in enums["offer_status"]:
+            problems.append(prefix + ".status 取值非法: " + str(status))
+    if "deadline" in offer:
+        if parse_deadline(offer["deadline"]) is None:
+            problems.append(prefix + ".deadline 须为合法的 YYYY-MM-DD 日期: " + str(offer["deadline"]))
+    if "money_basis" in offer:
+        basis = offer["money_basis"]
+        if not isinstance(basis, str) or basis not in enums["money_basis"]:
+            problems.append(prefix + ".money_basis 取值非法: " + str(basis))
+        elif basis == "face_value":
+            quota = offer.get("quota")
+            if not isinstance(quota, dict) or quota.get("unit") != "credit":
+                problems.append(prefix + ".money_basis=face_value 仅适用于 quota.unit=credit（按面值 1:1 计人民币）")
     for field in ("watermark", "commercial_rights", "queue_speed", "resolution"):
         if field in offer and offer[field] not in enums[field]:
             problems.append(prefix + "." + field + " 取值非法: " + str(offer[field]))
@@ -132,6 +184,12 @@ def build(input_path, contract, now):
     problems = []
     for i, offer in enumerate(entries):
         problems.extend(validate_offer(offer, i, contract))
+        if isinstance(offer, dict):
+            for rule, keyword in scan_rejections(offer, contract):
+                problems.append(
+                    "verified_offers[" + str(i) + "] 命中拒绝规则「" + str(rule.get("label", rule.get("id", "")))
+                    + "」（关键词：" + keyword + "）：" + str(rule.get("reason", "")) + "，不予收录"
+                )
     if problems:
         raise FeedError("清单校验失败：" + "；".join(problems) + "；已中止，不发布任何数据")
 
@@ -142,14 +200,21 @@ def build(input_path, contract, now):
         if verified_at is None:
             dropped.append((i, "缺少或非法 _verified_at"))
             continue
+        status = effective_status(offer, contract, now)
         age_days = Decimal(str((now - verified_at).total_seconds())) / Decimal(86400)
-        if age_days > max_days:
+        # 已过期/已停止的条目保留在公开 JSON 里并标状态，不受「7 天内复核」约束；
+        # 其余状态仍按 7 天阈值强制复核。
+        if status not in ("expired", "discontinued") and age_days > max_days:
             dropped.append((i, "核验时间超过 " + str(max_days) + " 天"))
             continue
         if verified_at > now:
             dropped.append((i, "_verified_at 晚于当前时间"))
             continue
-        kept.append(strip_private(offer, contract))
+        public = strip_private(offer, contract)
+        public["status"] = status
+        if "deadline" in offer:
+            public["deadline"] = offer["deadline"]
+        kept.append(public)
 
     payload = {
         "schema_version": contract["schema_version"],
@@ -237,6 +302,22 @@ def run_selftest(contract):
     ):
         check(label + " 被拒", len(validate_offer(bad, 0, contract)) > 0)
 
+    # 生命周期与折算口径字段
+    check("缺 status 默认合法", validate_offer(good, 0, contract) == [])
+    check("status=pending_official 合法", validate_offer(dict(good, status="pending_official"), 0, contract) == [])
+    check("非法 status 被拒", len(validate_offer(dict(good, status="rumored"), 0, contract)) > 0)
+    check("deadline 合法", validate_offer(dict(good, deadline="2026-12-31"), 0, contract) == [])
+    check("非法 deadline 被拒", len(validate_offer(dict(good, deadline="2026/12/31"), 0, contract)) > 0)
+    check("非法 deadline（不存在的日期）被拒", len(validate_offer(dict(good, deadline="2026-02-30"), 0, contract)) > 0)
+    check("money_basis=none 合法", validate_offer(dict(good, money_basis="none"), 0, contract) == [])
+    check("非法 money_basis 被拒", len(validate_offer(dict(good, money_basis="market"), 0, contract)) > 0)
+    check("face_value 非 credit 被拒", len(validate_offer(dict(good, money_basis="face_value"), 0, contract)) > 0)
+    check("credit 单价合法", validate_offer(dict(good, quota={"unit": "credit", "amount": 100, "unit_price_cny": 0.1}), 0, contract) == [])
+    check("credit 单价为 0 被拒", len(validate_offer(dict(good, quota={"unit": "credit", "amount": 100, "unit_price_cny": 0}), 0, contract)) > 0)
+    for rule in contract.get("rejection_rules", []):
+        hit = dict(good, note="说明：" + rule["keywords"][0])
+        check("拒绝规则「" + str(rule.get("label")) + "」命中", len(scan_rejections(hit, contract)) > 0)
+
     now = current_now("2026-11-13T01:00:00+00:00")
     with tempfile.TemporaryDirectory() as td:
         base = Path(td)
@@ -261,6 +342,44 @@ def run_selftest(contract):
         stale_file.write_text(json.dumps({"verified_offers": [stale_entry]}, ensure_ascii=False), encoding="utf-8")
         p3, dropped3 = build(stale_file, contract, now)
         check("过期核验条目被剔除", len(p3["offers"]) == 0 and len(dropped3) == 1)
+
+        legacy_file = base / "legacy.json"
+        legacy_file.write_text(json.dumps({"verified_offers": [good]}, ensure_ascii=False), encoding="utf-8")
+        p_legacy, _ = build(legacy_file, contract, now)
+        check("缺 status 的旧数据按 verified 输出", p_legacy["offers"][0]["status"] == "verified")
+
+        pending_file = base / "pending.json"
+        pending_file.write_text(
+            json.dumps({"verified_offers": [dict(good, status="pending_official")]}, ensure_ascii=False),
+            encoding="utf-8",
+        )
+        p_pending, dropped_pending = build(pending_file, contract, now)
+        check("pending_official 保留并标注", p_pending["offers"][0]["status"] == "pending_official" and not dropped_pending)
+
+        expired_file = base / "expired.json"
+        expired_file.write_text(
+            json.dumps({"verified_offers": [dict(good, _verified_at="2026-01-01T00:00:00+00:00", deadline="2026-11-01")]}, ensure_ascii=False),
+            encoding="utf-8",
+        )
+        p_expired, dropped_expired = build(expired_file, contract, now)
+        check(
+            "deadline 过期自动置 expired 且不因 7 天剔除",
+            len(p_expired["offers"]) == 1
+            and p_expired["offers"][0]["status"] == "expired"
+            and p_expired["offers"][0]["deadline"] == "2026-11-01"
+            and not dropped_expired,
+        )
+
+        rebate_file = base / "rebate.json"
+        rebate_file.write_text(
+            json.dumps({"verified_offers": [dict(good, note="邀请好友返利，最高 20 元")]}, ensure_ascii=False),
+            encoding="utf-8",
+        )
+        try:
+            build(rebate_file, contract, now)
+            check("拒绝规则在编译期生效", False)
+        except FeedError:
+            check("拒绝规则在编译期生效", True)
 
         bad_file = base / "bad.json"
         bad_file.write_text(json.dumps({"verified_offers": [dict(good, watermark="maybe")]}, ensure_ascii=False), encoding="utf-8")
@@ -317,6 +436,29 @@ def run_fixtures(contract):
         ("bad_period", {"verified_offers": [dict(good, quota={"unit": "count", "amount": 5, "period": "weekly"})]}, False),
         ("bad_nan", {"verified_offers": [dict(good, quota={"unit": "count", "amount": float("nan")})]}, False),
         ("bad_infinity", {"verified_offers": [dict(good, quota={"unit": "count", "amount": float("inf")})]}, False),
+        # 生命周期 / 截止日期
+        ("good_default_status", {"verified_offers": [good]}, True),
+        ("good_pending_official", {"verified_offers": [dict(good, status="pending_official")]}, True),
+        ("good_expired_deadline", {"verified_offers": [dict(good, deadline="2026-11-01")]}, True),
+        ("bad_status", {"verified_offers": [dict(good, status="rumored")]}, False),
+        ("bad_deadline_format", {"verified_offers": [dict(good, deadline="2026/11/13")]}, False),
+        # 折算口径
+        ("good_money_basis_none", {"verified_offers": [dict(good, money_basis="none")]}, True),
+        ("good_credit_unit_price", {
+            "verified_offers": [dict(good, quota={"unit": "credit", "amount": 100, "unit_price_cny": 0.1}, money_basis="unit_price")],
+        }, True),
+        ("good_credit_no_price", {
+            "verified_offers": [dict(good, quota={"unit": "credit", "amount": 100}, money_basis="unit_price")],
+        }, True),
+        ("bad_money_basis", {"verified_offers": [dict(good, money_basis="market")]}, False),
+        ("bad_face_value_unit", {"verified_offers": [dict(good, money_basis="face_value")]}, False),
+        # 拒绝规则：每类一条
+        ("bad_rebate_invite", {"verified_offers": [dict(good, note="邀请码注册返现 10 元")]}, False),
+        ("bad_relay_proxy", {"verified_offers": [dict(good, note="API 中转，价格是官方三折")]}, False),
+        ("bad_secondhand_credit", {"verified_offers": [dict(good, note="二手积分转让，量大优惠")]}, False),
+        ("bad_sms_multi_account", {"verified_offers": [dict(good, note="支持接码注册，可多开")]}, False),
+        ("bad_requires_topup", {"verified_offers": [dict(good, note="需先充值 100 元才送额度")]}, False),
+        ("bad_stacking_rule", {"verified_offers": [dict(good, note="新用户券可与活动同享，可叠加")]}, False),
     ]
     failures = []
     with tempfile.TemporaryDirectory() as td:

@@ -39,7 +39,8 @@ free-modal-radar 技能拉取 → 双轨折算 → 卡册看板
 | `scripts/build_feed.py` | 校验 / 编译 / 预检 / 自检 | 不用 |
 | `schema/contract.json` | 与技能端对齐的枚举与字段契约 | 技能端 schema 升级时同步 |
 | `sources/offers.json` | **已核验信源清单（初始为空）** | **要，这是唯一日常要填的文件** |
-| `sources/TEMPLATE.md` | 字段说明与三步核验法 | 读 |
+| `sources/inbox.json` | **线索区：只记「听说」，不参与编译** | 有线索时追加，核实后转正 |
+| `sources/TEMPLATE.md` | 字段说明、三步核验法与线索转正流程 | 读 |
 | `offers.json` | 自动生成的公开产物 | 不要手改 |
 | `.nojekyll` | Pages 配置 | 不要删 |
 
@@ -52,8 +53,8 @@ python scripts/build_feed.py --json
 python scripts/build_feed.py --verify --json
 ```
 
-`--selftest` 覆盖：合法条目、10 类非法条目被拒、私有字段剥离、空表合法、幂等、过期核验剔除、外链拦截、stale 判定、未知主版本拒绝。
-`--fixtures` 覆盖 5 个 good + 6 个 bad 回归样例。
+`--selftest` 覆盖：合法条目、10 类非法条目被拒、私有字段剥离、空表合法、幂等、过期核验剔除、外链拦截、stale 判定、未知主版本拒绝、生命周期状态（缺省 `verified`、`pending_official` 保留、`deadline` 自动过期）、折算口径字段与六类拒绝规则。
+`--fixtures` 覆盖 10 个 good + 17 个 bad 回归样例（含生命周期、`money_basis`、六类拒绝规则各一条）。
 `--now` 可注入 UTC 时钟保证可复现，例如 `--now 2026-11-13T05:17:00+00:00`。
 
 ## 五、与技能端契约的一致性
@@ -91,4 +92,16 @@ python scripts/build_feed.py --verify --json
 
 - **技能端超时 3 秒**：`references/valuation-constants.json` 的 `fetch_timeout_seconds` 默认 `"3"`。跨境访问 GitHub 时 3 秒常不够，会返回 `DATA_UNREACHABLE`。若实测超时，把该值调到 `"10"`（**改技能包前先按快照铁律做快照，并重跑 QA 自检**）。
 - **空表与「今日 0 元」的区别**：数据脑初始产出 `offers: []` 是「尚无已核验数据」。技能端已修正：空表时看板渲染「本次没有可核验记录，不输出折算结论」，不再出现「今日可用 ¥0.00」这类会被误读成「今天没有免费额度」的写法；只有一次性额度时也会单独成栏、标注「不计入今日」。结果 JSON 中空表与「今日桶为空」的数值键为 `null` 并附提示字段，不会输出 0。看板与 `radar-result.json` 均只反映数据脑的 `offers` 与 `generated_at`，请以 `generated_at` 判断新鲜度。
+
+## 八、同类参照
+
+线上产品 `aihot.news/free-tokens` 与本项目面向同一类需求（汇总可用的免费 AI 额度），可作横向参照：它按「每天 / 每周 / 每月 / 其他」分组展示卡片，逐条标注核实日期与剩余天数，并把赠金面值、积分单价、官方模型价、不可折钱四类折算依据分开处理，这些做法值得学习。
+
+两边定位不同，差异主要在工程形态而不是内容多少：
+
+- **数据形态**：本项目产出可机读的 `offers.json`（固定字段、固定枚举、带 `schema_version`），技能可直接消费；`aihot.news/free-tokens` 是网页展示，未提供同等的公开只读数据结构。
+- **额度描述**：本项目对每条额度记录四维口径（`watermark` / `commercial_rights` / `queue_speed` / `resolution`）与额度周期（`once` / `daily` / `per_style_daily` / `monthly` / `unknown`），用于判断「今天真能用多少」，而不只是「有没有活动」。
+- **失效与降级**：本项目有明确的降级契约（`DATA_UNREACHABLE` / `SCHEMA_INVALID` / `DATA_STALE` 等）与缓存快照策略，取不到数据时说明原因并标 `stale`，不拿旧数据冒充实时；同时用 `status` + `deadline` 标出待核实与已过期条目。
+
+本项目不借用对方的名称与 Logo，仅在此记录公开 URL 作为同类产品的客观对照；两边数据各自维护，互不抓取。
 

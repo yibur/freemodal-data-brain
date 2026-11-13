@@ -12,11 +12,14 @@
 {
   "provider": "平台名称",
   "modality": "image",
-  "quota": { "unit": "count", "amount": 50, "period": "once" },
+  "quota": { "unit": "count", "amount": 50, "period": "once", "unit_price_cny": 0.05 },
   "watermark": "none",
   "commercial_rights": "allowed",
   "queue_speed": "instant",
   "resolution": "2k",
+  "status": "verified",
+  "deadline": "2026-12-31",
+  "money_basis": "official_price",
   "note": "可选备注",
   "_verified_at": "2026-11-13T05:00:00+00:00",
   "_official_homepage_confirmed": true,
@@ -36,20 +39,26 @@
 | `queue_speed` | 是 | `instant` / `fast` / `normal` / `slow` | 排队速度 |
 | `resolution` | 是 | `1k` / `2k` / `4k` / `720p` / `1080p` / `variable` | 分辨率 |
 | `note` | 否 | 字符串 | 备注，**不得含任何链接或引流信息** |
+| `status` | 否 | `verified` / `pending_official` / `expired` / `discontinued` | 生命周期状态。缺省按 `verified` 处理；`pending_official` 可进公开 JSON，但技能端不计入「今日可用」与折算总额 |
+| `deadline` | 否 | `YYYY-MM-DD` | 活动截止日期。到截止日次日构建时自动置为 `expired`；过期条目仍保留在公开 JSON 里并标状态，不从今日可用桶计入 |
+| `money_basis` | 否 | `face_value` / `unit_price` / `official_price` / `none` | 折算依据：赠金面值 / 积分单独购买单价 / 官方模型单价（缺省）/ 不折钱。`none` 在技能端金额为 `null` 并说明原因，不输出 0 |
+| `quota.unit_price_cny` | 否 | > 0 的数字 | 该积分可单独购买时的单价（元/积分），仅 `money_basis=unit_price` 时使用；缺失则不折钱（`null`），不猜价 |
 | 下划线开头字段 | 否 | 任意 | 私有核验元数据，**不会进入公开发布的 JSON** |
 
 ## 三、核验三步（对应原方案的「三层核验 + 原文锚点」）
 
 1. **官方首页确认**：从平台官方首页进入活动/定价页，确认额度页确属该平台官方域名；不接受二手转载、聚合站截图、社群转述。
 2. **原文锚点抄录**：把额度数值、水印、商用权、排队、分辨率五项从原文逐字核对；任一项原文没写，对应枚举填 `unknown` / `conditional`，**不补值、不猜值**。
-3. **记录核验时间**：`_verified_at` 写成带 `+00:00` 时区的 UTC 时间。**超过 7 天的记录会被构建脚本自动剔除**，强制你定期复核。
+3. **记录核验时间**：`_verified_at` 写成带 `+00:00` 时区的 UTC 时间。**超过 7 天的记录会被构建脚本自动剔除**（已标 `expired` / `discontinued` 的条目除外），强制你定期复核。
 
 ## 四、构建脚本会自动拦截什么
 
 - 缺四字段、枚举非法、额度为负、单位非法、`provider` 非字符串 → **整份清单中止发布**，不输出半截数据。
 - 公开产物里出现外链、二维码相关词、第三方品牌词、永久/无限/收益承诺 → 中止发布。
+- 命中拒绝规则（返利/邀请、中转站/逆向、二手/共享额度、接码/多开、需先充值、叠加口径）→ 中止发布并给出命中关键词与原因。
 - 任何 `_` 开头字段 → 自动剥离，不泄漏到公开 JSON。
-- 核验时间超 7 天或晚于当前时间 → 该条剔除并在日志列出原因。
+- 核验时间超 7 天或晚于当前时间 → 该条剔除并在日志列出原因；**已置为 `expired` / `discontinued` 的条目例外，会保留在公开 JSON 里并标状态**。
+- `deadline` 早于当天（UTC）且状态仍是 `verified` / `pending_official` → 构建时自动改写为 `expired`。
 
 ## 五、合规红线
 
@@ -58,3 +67,15 @@
 - 不承诺「永久免费 / 无限额度 / 保证薅到 / 稳定收益」。
 - 抓取第三方页面前自行确认该站点的服务条款与 robots 约束；本骨架**不内置任何爬虫**，只消费你人工核验后录入的清单。
 - 所有额度以官方最新公告为准，本数据不构成投资、财务或收益建议。
+
+## 六、线索区与正式数据的边界
+
+`sources/inbox.json` 是**线索区**，只记「听说」：来源可以是社群转述、文章提及、朋友推荐，**不参与编译**，也永远不会出现在公开 `offers.json` 里。
+
+流程只有一条：
+
+1. 听说某平台有免费额度 → 追加到 `inbox.json` 的 `inbox` 数组，写清 `claim`（听说的内容）、`heard_from`（来源）、`heard_at`（日期），`status` 固定为 `unverified`。
+2. 按上面「核验三步」找到官方原文并逐项核对。
+3. 核验通过后，把这条**重新写成 `offers.json` 的完整记录**追加进去，同时把 `inbox.json` 里那条的 `status` 改成 `promoted`。
+
+禁止把线索原样粘进 `offers.json`：线索缺四维字段、缺原文锚点，直接进正式清单会被构建脚本拒绝，也破坏了「公开数据均可核验」的承诺。

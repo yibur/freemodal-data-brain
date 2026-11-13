@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-11-13T13:36:43+00:00",
+  "generated_at": "2026-11-13T15:14:10+00:00",
   "offers": [
     {
       "commercial_rights": "unknown",
@@ -13,6 +13,7 @@
         "unit": "count"
       },
       "resolution": "variable",
+      "status": "verified",
       "watermark": "conditional"
     },
     {
@@ -27,6 +28,7 @@
         "unit": "count"
       },
       "resolution": "variable",
+      "status": "verified",
       "watermark": "conditional"
     },
     {
@@ -41,6 +43,7 @@
         "unit": "count"
       },
       "resolution": "variable",
+      "status": "verified",
       "watermark": "conditional"
     }
   ],
