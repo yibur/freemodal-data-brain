@@ -4,7 +4,7 @@
     {
       "provider": "腾讯混元生图",
       "modality": "image",
-      "quota": { "unit": "count", "amount": 50 },
+      "quota": { "unit": "count", "amount": 50, "period": "once" },
       "watermark": "conditional",
       "commercial_rights": "unknown",
       "queue_speed": "normal",
@@ -20,7 +20,7 @@
     {
       "provider": "腾讯混元生图（文生图轻量版）",
       "modality": "image",
-      "quota": { "unit": "count", "amount": 50 },
+      "quota": { "unit": "count", "amount": 50, "period": "once" },
       "watermark": "conditional",
       "commercial_rights": "unknown",
       "queue_speed": "normal",
@@ -36,7 +36,7 @@
     {
       "provider": "Recraft",
       "modality": "image",
-      "quota": { "unit": "count", "amount": 3 },
+      "quota": { "unit": "count", "amount": 3, "period": "per_style_daily" },
       "watermark": "conditional",
       "commercial_rights": "restricted",
       "queue_speed": "normal",

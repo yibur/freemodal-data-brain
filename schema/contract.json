@@ -9,6 +9,7 @@
   "enums": {
     "modality": ["image", "video"],
     "quota_unit": ["count", "second", "credit"],
+    "quota_period": ["once", "daily", "per_style_daily", "monthly", "unknown"],
     "watermark": ["none", "visible", "conditional"],
     "commercial_rights": ["allowed", "restricted", "unknown"],
     "queue_speed": ["instant", "fast", "normal", "slow"],

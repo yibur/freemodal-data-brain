@@ -15,6 +15,7 @@ sys.dont_write_bytecode = True
 
 import argparse
 import json
+import math
 import os
 import tempfile
 from datetime import datetime, timedelta, timezone
@@ -94,10 +95,14 @@ def validate_offer(offer, idx, contract):
                 problems.append(prefix + ".quota 缺少必填字段 " + ", ".join(qmissing))
             if "unit" in quota and quota["unit"] not in enums["quota_unit"]:
                 problems.append(prefix + ".quota.unit 取值非法: " + str(quota["unit"]))
+            if "period" in quota and quota["period"] not in enums.get("quota_period", []):
+                problems.append(prefix + ".quota.period 取值非法: " + str(quota["period"]))
             if "amount" in quota:
                 amt = quota["amount"]
                 if isinstance(amt, bool) or not isinstance(amt, (int, float)):
                     problems.append(prefix + ".quota.amount 须为数字")
+                elif not math.isfinite(amt):
+                    problems.append(prefix + ".quota.amount 须为有限数字（不接受 NaN / Infinity）")
                 elif Decimal(str(amt)) < 0:
                     problems.append(prefix + ".quota.amount 不得为负")
     for field in ("watermark", "commercial_rights", "queue_speed", "resolution"):
@@ -226,6 +231,9 @@ def run_selftest(contract):
         ("quota 非对象", dict(good, quota="10")),
         ("provider 非字符串", dict(good, provider=123)),
         ("modality 非法", dict(good, modality="audio")),
+        ("额度周期非法", dict(good, quota={"unit": "count", "amount": 10, "period": "weekly"})),
+        ("额度过 NaN", dict(good, quota={"unit": "count", "amount": float("nan")})),
+        ("额度过 Infinity", dict(good, quota={"unit": "count", "amount": float("inf")})),
     ):
         check(label + " 被拒", len(validate_offer(bad, 0, contract)) > 0)
 
@@ -305,6 +313,10 @@ def run_fixtures(contract):
         ("bad_negative", {"verified_offers": [dict(good, quota={"unit": "count", "amount": -5})]}, False),
         ("bad_version", {"verified_offers": [dict(good, modality="text")]}, False),
         ("bad_link", {"verified_offers": [dict(good, note="https://example.invalid")]}, False),
+        ("good_period", {"verified_offers": [dict(good, quota={"unit": "count", "amount": 5, "period": "once"})]}, True),
+        ("bad_period", {"verified_offers": [dict(good, quota={"unit": "count", "amount": 5, "period": "weekly"})]}, False),
+        ("bad_nan", {"verified_offers": [dict(good, quota={"unit": "count", "amount": float("nan")})]}, False),
+        ("bad_infinity", {"verified_offers": [dict(good, quota={"unit": "count", "amount": float("inf")})]}, False),
     ]
     failures = []
     with tempfile.TemporaryDirectory() as td:

@@ -52,8 +52,8 @@ python scripts/build_feed.py --json
 python scripts/build_feed.py --verify --json
 ```
 
-`--selftest` 覆盖：合法条目、7 类非法条目被拒、私有字段剥离、空表合法、幂等、过期核验剔除、外链拦截、stale 判定、未知主版本拒绝。
-`--fixtures` 覆盖 3 个 good + 4 个 bad 回归样例。
+`--selftest` 覆盖：合法条目、10 类非法条目被拒、私有字段剥离、空表合法、幂等、过期核验剔除、外链拦截、stale 判定、未知主版本拒绝。
+`--fixtures` 覆盖 5 个 good + 6 个 bad 回归样例。
 `--now` 可注入 UTC 时钟保证可复现，例如 `--now 2026-11-13T05:17:00+00:00`。
 
 ## 五、与技能端契约的一致性
@@ -73,7 +73,7 @@ python scripts/build_feed.py --verify --json
 ## 七、已知限制与网络现实（国内用户必读）
 
 - Actions 定时任务**可能延迟 5–30 分钟**，且只在默认分支的最新提交上运行；不是精确闹钟。
-- 若仓库连续 60 天无任何提交，GitHub 会自动停用 schedule；本骨架的小时级 commit 已规避，但**别把它改成「无变化不提交」**。
+- 若仓库连续 60 天无任何提交，GitHub 会自动停用 schedule；本骨架的小时级 commit 已规避。工作流在内容确实没变时会用 `--allow-empty` 提交一次，保证「每小时都有提交」这条保活前提在任何情况下都成立。
 - 公开仓库的 Actions 日志与产物全部公开，注意信息边界。
 - 数据源 URL 由技能端环境变量或配置注入，本仓库不硬编码任何 URL。
 

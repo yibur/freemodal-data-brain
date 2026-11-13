@@ -12,7 +12,7 @@
 {
   "provider": "平台名称",
   "modality": "image",
-  "quota": { "unit": "count", "amount": 50 },
+  "quota": { "unit": "count", "amount": 50, "period": "once" },
   "watermark": "none",
   "commercial_rights": "allowed",
   "queue_speed": "instant",
@@ -30,6 +30,7 @@
 | `modality` | 是 | `image` / `video` | 生图或生视频 |
 | `quota.unit` | 是 | `count` / `second` / `credit` | 按次 / 按秒 / 按积分 |
 | `quota.amount` | 是 | ≥ 0 的数字 | 原始额度数值，不折算、不夸大 |
+| `quota.period` | 否（建议填） | `once` / `daily` / `per_style_daily` / `monthly` / `unknown` | 额度周期：一次性 / 每日 / 每日每风格 / 每月。缺失按 `unknown` 处理，技能端不会把它算进「今日可用」；一次性额度也不要写成 `daily` |
 | `watermark` | 是 | `none` / `visible` / `conditional` | 水印情况；不确定填 `conditional` |
 | `commercial_rights` | 是 | `allowed` / `restricted` / `unknown` | 商用版权；**不确定就填 `unknown`，不许猜** |
 | `queue_speed` | 是 | `instant` / `fast` / `normal` / `slow` | 排队速度 |
