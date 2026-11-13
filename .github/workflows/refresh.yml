@@ -2,7 +2,9 @@ name: Refresh offers feed
 
 on:
   schedule:
-    - cron: '17 * * * *'
+    # 每 20 分钟一次，避开整点高负载时段。GitHub 对 schedule 存在排队与延迟
+    # （高峰可达 5-30 分钟），提高频率可让线上数据稳定落在技能端 2 小时阈值内。
+    - cron: '*/20 * * * *'
   workflow_dispatch:
   push:
     paths:
