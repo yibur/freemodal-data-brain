@@ -41,14 +41,17 @@ jobs:
       - name: Verify published payload
         run: python scripts/build_feed.py --output offers.json --verify --json
 
-      - name: Commit if changed
+      - name: Commit hourly (keep-alive)
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add -f offers.json
           if git diff --cached --quiet; then
-            echo "No change, skip commit"
+            # generated_at 每小时都会变，正常路径一定有 diff。走到这里说明内容真的没变
+            # （例如人工注入了固定的 --now），此时用空提交保活，避免 60 天无提交被停用定时任务。
+            echo "No content change, commit empty to keep schedule alive"
+            git commit --allow-empty -m "chore: refresh keep-alive [skip ci]"
           else
             git commit -m "chore: refresh offers feed [skip ci]"
-            git push
           fi
+          git push
