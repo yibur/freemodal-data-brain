@@ -1,4 +1,4 @@
-# FreeModal 数据脑 · 方案 B（GitHub Actions 静态 JSON）
+# FreeModal 数据脑 · （GitHub Actions 静态 JSON）
 
 > 用途：给 `free-modal-radar` 技能提供 `FREEMODAL_DATA_URL` 指向的结构化 JSON。
 > 本仓库**不采集、不抓取、不编造**任何额度，只把「已核验清单」确定性编译成公开 JSON。
