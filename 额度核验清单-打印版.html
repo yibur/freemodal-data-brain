@@ -1,0 +1,285 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>额度核验清单（打印勾选版）</title>
+<style>
+  :root{
+    --ink:#1c1c1e; --muted:#5b5b60; --line:#c9c9ce; --line-soft:#e3e3e7;
+    --bg:#ffffff; --panel:#f7f7f9; --accent:#1f3d7a;
+    --danger:#a3231b; --danger-bg:#fdecea; --danger-line:#d9534f;
+    --ok:#1f6b3a;
+  }
+  *{box-sizing:border-box;}
+  html{-webkit-text-size-adjust:100%;}
+  body{
+    margin:0; padding:18px 16px 40px; background:#eceef1; color:var(--ink);
+    font-family:"Microsoft YaHei","PingFang SC","Hiragino Sans GB","Source Han Sans SC",sans-serif;
+    font-size:14px; line-height:1.62;
+  }
+  .sheet{
+    max-width:820px; margin:0 auto; background:var(--bg);
+    padding:34px 38px 44px; border:1px solid var(--line);
+    box-shadow:0 2px 14px rgba(0,0,0,.08);
+  }
+  h1{font-size:22px; margin:0 0 4px; letter-spacing:.5px;}
+  .sub{color:var(--muted); font-size:12.5px; margin:0 0 18px;}
+  h2{
+    font-size:15.5px; margin:26px 0 10px; padding-bottom:5px;
+    border-bottom:2px solid var(--ink);
+  }
+  h3{font-size:14px; margin:18px 0 6px;}
+  p{margin:6px 0;}
+  .redline{
+    border:2px solid var(--danger-line); background:var(--danger-bg);
+    padding:12px 14px; margin:0 0 18px; border-radius:2px;
+  }
+  .redline .t{font-weight:700; color:var(--danger); font-size:15px; margin-bottom:6px;}
+  .redline table{margin:6px 0 4px;}
+  .redline td{border:none; padding:2px 0; font-size:12.5px;}
+  .redline td:first-child{width:150px; color:var(--muted);}
+  .card{
+    border:1px solid var(--line); padding:12px 14px 10px; margin:12px 0 16px;
+    break-inside:avoid; page-break-inside:avoid;
+  }
+  .card h3{margin:0 0 4px; font-size:14.5px;}
+  .card .where{font-size:12.5px; color:var(--muted); margin:0 0 8px;}
+  ul.chk{list-style:none; padding:0; margin:6px 0;}
+  ul.chk li{padding:3px 0 3px 24px; position:relative; font-size:13px;}
+  ul.chk li::before{
+    content:"\2610"; position:absolute; left:0; top:1px;
+    font-size:15px; line-height:1; color:var(--accent);
+  }
+  .verdict{
+    display:flex; gap:8px; flex-wrap:wrap; margin-top:10px;
+    padding-top:8px; border-top:1px dashed var(--line);
+  }
+  .verdict span{
+    border:1px solid var(--line); padding:3px 9px; font-size:12px; white-space:nowrap;
+  }
+  table{width:100%; border-collapse:collapse; margin:8px 0 12px;}
+  th,td{border:1px solid var(--line); padding:5px 7px; font-size:12px; vertical-align:top; text-align:left;}
+  th{background:var(--panel); font-weight:600;}
+  td.box{width:26px; text-align:center; color:var(--accent); font-size:14px;}
+  code{
+    font-family:Consolas,"Courier New",monospace; font-size:11.5px;
+    background:var(--panel); padding:1px 4px; border:1px solid var(--line-soft);
+    word-break:break-all;
+  }
+  pre{
+    font-family:Consolas,"Courier New",monospace; font-size:11.5px; line-height:1.55;
+    background:var(--panel); border:1px solid var(--line-soft);
+    padding:9px 11px; margin:7px 0; overflow-x:auto; white-space:pre-wrap; word-break:break-all;
+  }
+  pre .c{color:var(--muted);}
+  .note{font-size:12px; color:var(--muted); margin:4px 0 10px;}
+  .steps{counter-reset:s; list-style:none; padding:0; margin:0;}
+  .steps > li{
+    break-inside:avoid; page-break-inside:avoid;
+    border-left:3px solid var(--accent); padding:2px 0 2px 12px; margin:0 0 14px;
+  }
+  .steps > li > strong{display:block; font-size:13.5px; margin-bottom:3px;}
+  .ok{color:var(--ok);}
+  .foot{
+    margin-top:26px; padding-top:10px; border-top:1px solid var(--line);
+    font-size:12px; color:var(--muted); display:flex; justify-content:space-between; gap:16px;
+  }
+  .grow{flex:1; border-bottom:1px solid var(--line); min-height:18px;}
+  @media print{
+    body{background:#fff; padding:0; font-size:10.5pt;}
+    .sheet{max-width:none; border:none; box-shadow:none; padding:0; margin:0;}
+    h2{break-after:avoid; page-break-after:avoid;}
+    table{break-inside:auto;}
+    tr{break-inside:avoid; page-break-inside:avoid;}
+    thead{display:table-header-group;}
+    pre{white-space:pre-wrap;}
+    a{color:inherit; text-decoration:none;}
+  }
+  @page{ size:A4; margin:12mm 11mm 14mm; }
+</style>
+</head>
+<body>
+<div class="sheet">
+
+  <h1>额度核验清单（打印勾选版）</h1>
+  <p class="sub">FreeModal 数据脑 · 人工逐条核验用 · 本页不含任何核验结论，所有数值现场抄录</p>
+
+  <div class="redline">
+    <div class="t">时间红线：2026-11-20 16:57（北京时间）</div>
+    <table>
+      <tr><td>现有 3 条 _verified_at</td><td><code>2026-11-13T08:57:23+00:00</code></td></tr>
+      <tr><td>契约 max_verified_age_days</td><td><code>7</code></td></tr>
+      <tr><td>逾期后果</td><td>3 条全部超期被剔除 → 编译结果 0 条 → 脚本拒绝输出空数据，退出码 1，不发布；线上停在最后一次成功值，看板 3 天后亮红</td></tr>
+    </table>
+    <p class="note" style="margin:4px 0 0">过了这个时刻再核验也不算数，必须在此之前把新的 _verified_at 写进去并发布成功。</p>
+  </div>
+
+  <h2>一、现有 3 条复核单</h2>
+  <p class="note">三条核完后，<code>_verified_at</code> 与 <code>_anchor_checked_at</code> 都要改成这次核验的 UTC 时刻：<code>(Get-Date).ToUniversalTime().ToString("yyyy-MM-ddTHH:mm:ss+00:00")</code></p>
+
+  <div class="card">
+    <h3>1. 腾讯混元生图</h3>
+    <p class="where">去哪儿看：<code>cloud.tencent.com/document/product/1729/105925</code> → 「混元生图计费概述」正文的资源包/免费额度表格。页内 Ctrl+F 搜「混元生图」「免费」「赠送」。</p>
+    <ul class="chk">
+      <li>该行原文仍给出免费数量，单位为「次」，与现有 <code>amount=50 / unit=count</code> 一致</li>
+      <li>仍为一次性资源包（不是每日/每月循环），<code>period=once</code> 成立</li>
+      <li>仍写有有效期，且「耗尽后不自动转后付费」的结论未反转</li>
+    </ul>
+    <div class="verdict"><span>☐ 通过：只刷 _verified_at、_anchor_checked_at</span><span>☐ 变了：改 quota.amount/unit/period + note 抄原文</span><span>☐ 停掉了：status=discontinued，amount 不改 0</span></div>
+  </div>
+
+  <div class="card">
+    <h3>2. 腾讯混元生图（文生图轻量版）</h3>
+    <p class="where">去哪儿看：同一个页面 → 同一张表格里行名含「轻量版」的另一行。页内 Ctrl+F 搜「轻量版」。</p>
+    <ul class="chk">
+      <li>该行仍独立存在，数量为「次」且与现有 <code>amount=50 / unit=count</code> 一致</li>
+      <li>仍为一次性资源包，<code>period=once</code></li>
+      <li>原文仍表明与「混元生图」资源不互通 / 独立计费（这是它能单独成条的理由）</li>
+    </ul>
+    <div class="verdict"><span>☐ 通过：只刷时间字段</span><span>☐ 变了：改 quota.*；「不互通」消失属口径变化，写进 note 并考虑合并</span><span>☐ 停掉了：status=discontinued</span></div>
+  </div>
+
+  <div class="card">
+    <h3>3. Recraft</h3>
+    <p class="where">去哪儿看：<code>www.recraft.ai/pricing</code> → Free 档那一列的功能清单。页内 Ctrl+F 搜「Free」「per style」「commercial」「public」。</p>
+    <ul class="chk">
+      <li>Free 列仍写明每风格每天次数，与 <code>amount=3</code> 一致，且口径确为 per style per day（非全天总量）</li>
+      <li>仍明确禁止商用 → <code>commercial_rights=restricted</code></li>
+      <li>仍未提水印 → 保持 <code>conditional</code> 并在 note 注明「官方未说明」</li>
+      <li>仍写明不可并行 → <code>queue_speed=normal</code></li>
+    </ul>
+    <div class="verdict"><span>☐ 通过：只刷时间字段</span><span>☐ 变了：次数/周期/商用按原文改，口径变必重写 note</span><span>☐ 停掉了：status=discontinued；若改成首月免费则补 deadline</span></div>
+  </div>
+
+  <h2>二、候选新额度清单</h2>
+  <p class="note">表内是官方入口页，点进去后把实际落到的官方 URL 记为 <code>_source_url</code>。本表<b>不含任何额度数字</b>。登录墙后的文字不能作为判据。</p>
+
+  <h3>国内（13 家）</h3>
+  <table>
+    <thead><tr><th class="box"></th><th style="width:150px">平台</th><th style="width:230px">官方入口</th><th>在页面上看什么</th><th style="width:92px">形态</th></tr></thead>
+    <tbody>
+      <tr><td class="box">☐</td><td>腾讯云 · 混元生图</td><td><code>cloud.tencent.com/document/product/1729/105925</code></td><td>计费概述正文的资源包表格，「混元生图」行的免费数量；下方有效期与转后付费说明</td><td>count / once</td></tr>
+      <tr><td class="box">☐</td><td>阿里云百炼 · 通义万相</td><td><code>help.aliyun.com/zh/model-studio/models</code></td><td>模型列表图像生成行的「免费额度」列，再进该模型计费小节。搜「万相」</td><td>count / once 或 monthly</td></tr>
+      <tr><td class="box">☐</td><td>火山引擎 · 方舟</td><td><code>www.volcengine.com/pricing?product=ark</code></td><td>「大模型服务」下 Seedream / Seedance 套餐卡片的免费额度标签</td><td>count / once；视频 second</td></tr>
+      <tr><td class="box">☐</td><td>百度智能云 · 千帆</td><td><code>cloud.baidu.com/product/qianfan.html</code></td><td>「新用户免费额度」/「价格」区块，再进计费文档看表格</td><td>count 或 credit / once</td></tr>
+      <tr><td class="box">☐</td><td>智谱 · BigModel</td><td><code>bigmodel.cn/pricing</code></td><td>模型卡片上的「免费」标记 / 赠送说明，页顶新用户活动条</td><td>count 或 credit / once</td></tr>
+      <tr><td class="box">☐</td><td>硅基流动 SiliconFlow</td><td><code>www.siliconflow.cn/pricing</code></td><td>价目表筛「图像」类目，看是否有标价 0 的模型；新用户赠额说明</td><td>count / daily；credit / once</td></tr>
+      <tr><td class="box">☐</td><td>快手 · 可灵 AI</td><td><code>app.klingai.com/cn/</code></td><td>会员/积分页的公开规则文字（每天多少、是否清零）。需登录才可见则只进待核实</td><td>credit / daily</td></tr>
+      <tr><td class="box">☐</td><td>MiniMax · 海螺 AI</td><td><code>hailuoai.com</code></td><td>会员/权益页或帮助中心的公开定价说明</td><td>credit / daily</td></tr>
+      <tr><td class="box">☐</td><td>字节 · 即梦 AI</td><td><code>jimeng.jianying.com</code></td><td>会员/积分说明页里免费积分的发放周期与过期规则</td><td>credit / daily</td></tr>
+      <tr><td class="box">☐</td><td>阿里 · 通义万相</td><td><code>tongyi.aliyun.com/wan/</code></td><td>产品页「免费试用 / 额度」入口与会员权益说明</td><td>credit 或 count / daily</td></tr>
+      <tr><td class="box">☐</td><td>讯飞 · 星火</td><td><code>xinghuo.xfyun.cn</code></td><td>开放平台「价格 / 免费额度」页的新用户赠送包与服务量单位</td><td>count / once</td></tr>
+      <tr><td class="box">☐</td><td>MiniMax 开放平台</td><td><code>platform.minimax.cn/docs/pricing/overview</code></td><td>「定价概览」的模型计费表与「免费额度」章节</td><td>count / once</td></tr>
+      <tr><td class="box">☐</td><td>生数科技 · Vidu</td><td><code>www.vidu.cn</code></td><td>会员/积分页的公开规则：视频按秒还是按条、积分周期</td><td>second 或 credit / daily</td></tr>
+    </tbody>
+  </table>
+
+  <h3>国外（12 家）</h3>
+  <table>
+    <thead><tr><th class="box"></th><th style="width:150px">平台</th><th style="width:230px">官方入口</th><th>在页面上看什么</th><th style="width:92px">形态</th></tr></thead>
+    <tbody>
+      <tr><td class="box">☐</td><td>Cloudflare Workers AI</td><td><code>developers.cloudflare.com/workers-ai/platform/pricing/</code></td><td>「Free allocation」段落的每日免费配额</td><td>credit / daily（长期额度）</td></tr>
+      <tr><td class="box">☐</td><td>Adobe Firefly</td><td><code>firefly.adobe.com</code></td><td>「Plans」→ Free 档每月生成积分说明</td><td>credit / monthly</td></tr>
+      <tr><td class="box">☐</td><td>Microsoft Designer</td><td><code>designer.microsoft.com/image-creator</code></td><td>页面内 boosts / 额度说明，再看帮助中心 boosts 规则</td><td>count / daily</td></tr>
+      <tr><td class="box">☐</td><td>Stability AI</td><td><code>platform.stability.ai/pricing</code></td><td>免费积分说明（注册赠 / 是否每月重置）与 API 单价表</td><td>credit / once 或 monthly</td></tr>
+      <tr><td class="box">☐</td><td>Runway</td><td><code>runway.com/pricing</code></td><td>Free 档积分数、是否一次性、是否带水印</td><td>credit / once</td></tr>
+      <tr><td class="box">☐</td><td>Freepik</td><td><code>www.freepik.com/pricing</code></td><td>AI 方案 Free 档的每日/每月 AI 积分</td><td>credit / daily 或 monthly</td></tr>
+      <tr><td class="box">☐</td><td>fal.ai</td><td><code>fal.ai/pricing</code></td><td>免费额度 / 赠送说明与按次计费表</td><td>credit 或 count / once</td></tr>
+      <tr><td class="box">☐</td><td>Recraft</td><td><code>www.recraft.ai/pricing</code></td><td>Free 列：每风格每天次数、商用、公开、并行</td><td>count / per_style_daily</td></tr>
+      <tr><td class="box">☐</td><td>Google AI Studio</td><td><code>ai.google.dev/gemini-api/docs/pricing</code></td><td>「Free tier」段落与 Rate limits 表（RPM/RPD）。<b>需代理</b></td><td>count / daily（免费层）</td></tr>
+      <tr><td class="box">☐</td><td>Leonardo.Ai</td><td><code>leonardo.ai/pricing</code></td><td>Free 档每日 token 数量与重置规则。<b>需代理</b></td><td>credit / daily</td></tr>
+      <tr><td class="box">☐</td><td>Ideogram</td><td><code>ideogram.ai/pricing</code></td><td>Free 档生成次数/积分，以及商用与水印说明。<b>需代理</b></td><td>count 或 credit / daily</td></tr>
+      <tr><td class="box">☐</td><td>Krea</td><td><code>www.krea.ai/pricing</code></td><td>Free 档每日额度与重置说明。<b>需代理</b></td><td>credit / daily</td></tr>
+    </tbody>
+  </table>
+
+  <h2>三、判定规则速查</h2>
+  <table>
+    <thead><tr><th style="width:96px">档位</th><th>条件（全满足才归此档）</th><th style="width:170px">落到哪里</th></tr></thead>
+    <tbody>
+      <tr><td><b>已核验</b></td><td>官方域名页面；数量与单位逐字出现（不是自己算的）；水印/商用/排队/分辨率四项有原文或按 conditional、unknown 占位并在 note 注明；写清 _verified_at、_source_url、_source_title</td><td>sources/offers.json 的 verified_offers，走 promote</td></tr>
+      <tr><td><b>待核实</b></td><td>只有说法没原文；官方页没写具体数量；只有博客/新闻稿的模糊表述；页面要登录才看得到文字；官方说「即将上线」</td><td>只留 sources/inbox.json（unverified / verifying），永不进 offers.json</td></tr>
+      <tr><td><b>直接拒收</b></td><td>命中下方六类任一；判据来自帖子/教程/聚合站/二手转载；数字来自「实测截图」但无官方原文；需先充值才能拿</td><td>不写任何清单；已进 inbox 的置 rejected</td></tr>
+    </tbody>
+  </table>
+
+  <h3>直接拒收六类（命中关键词即拒，脚本会中止发布）</h3>
+  <table>
+    <thead><tr><th style="width:110px">类别</th><th>关键词</th><th style="width:215px">为什么拒</th></tr></thead>
+    <tbody>
+      <tr><td>返利 / 邀请</td><td>返利、返现、邀请码、邀请好友、拉新奖励、分销、推广佣金</td><td>收益靠拉人或返现，不是可直接用的免费额度</td></tr>
+      <tr><td>中转站 / 逆向</td><td>中转站、API 中转、api中转、中转 API、逆向接口、破解版、代理转发</td><td>转售或绕过官方计费，来源不可核验，违反条款</td></tr>
+      <tr><td>二手 / 共享额度</td><td>二手积分、转让积分、共享账号、合租账号、代充</td><td>额度归属不清，有回收与违规风险</td></tr>
+      <tr><td>接码 / 多开</td><td>接码、多开、虚拟号、批量注册、换号注册</td><td>规避风控获取额度，违反服务条款</td></tr>
+      <tr><td>需先充值</td><td>需先充值、必须先充值、充值后赠送、首充、充值满、预存</td><td>先付钱才拿到，属付费促销</td></tr>
+      <tr><td>叠加口径</td><td>可叠加、叠加使用、重复领取、与其他优惠同享</td><td>叠加后无法单独核算，易把宣传上限当实际额度</td></tr>
+    </tbody>
+  </table>
+
+  <h3>四项防坑字段怎么看</h3>
+  <table>
+    <thead><tr><th style="width:130px">字段</th><th style="width:150px">取值</th><th>判定口径</th></tr></thead>
+    <tbody>
+      <tr><td><code>watermark</code></td><td>none / visible / conditional</td><td>原文写无水印→none；写带水印→visible；只字未提→conditional 并在 note 注明非实测。不许自己下载一张图去猜</td></tr>
+      <tr><td><code>commercial_rights</code></td><td>allowed / restricted / unknown</td><td>定价页或服务条款明确允许→allowed；personal use only / no commercial use→restricted；找不到或措辞模糊→unknown</td></tr>
+      <tr><td><code>queue_speed</code></td><td>instant / fast / normal / slow</td><td>按原文的 priority / standard / no parallel 映射；没提→normal + note 注明「中性占位，非实测」</td></tr>
+      <tr><td><code>resolution</code></td><td>1k / 2k / 4k / 720p / 1080p / variable</td><td>单一上限→对应档；多档可选不固定→variable；没写→variable + note 注明</td></tr>
+    </tbody>
+  </table>
+
+  <p class="note"><b>周期口径最易错：</b>一次性别写成 daily（等于放大 30 倍）；Recraft 是 per_style_daily（每风格每天），不是全天总量；原文没说周期填 unknown，不要默认 daily。</p>
+
+  <h2>四、填写流程</h2>
+  <ol class="steps">
+    <li><strong>1. 记线索</strong>
+      <pre>cd C:\Users\31248\Desktop\2026-11-12-14-04-06\freemodal-data-brain
+python scripts\inbox.py add --provider "平台名称" --claim "听说有免费额度，数量待核" --heard-from "来源" --heard-at 2026-11-14</pre>
+      <span class="ok">成功回显：已记录线索 L2026xxxx-xxxxxx（status=unverified）。</span> claim 里不要写数字。
+    </li>
+    <li><strong>2. 标记核验中</strong>
+      <pre>python scripts\inbox.py list
+python scripts\inbox.py status L2026xxxx-xxxxxx verifying</pre>
+      <span class="ok">成功回显：线索 ... ：unverified -&gt; verifying</span>
+    </li>
+    <li><strong>3. 去官方页面看，把结论写成正式记录</strong>
+      <p class="note">手工编辑 <code>sources/offers.json</code>，在 verified_offers 里追加一条：provider、modality、quota{unit,amount,period}、watermark、commercial_rights、queue_speed、resolution、status、note，以及 _verified_at / _anchor_checked_at / _official_homepage_confirmed / _source_url / _source_title。尖括号值一律现场抄。</p>
+      <pre>(Get-Date).ToUniversalTime().ToString("yyyy-MM-ddTHH:mm:ss+00:00")</pre>
+    </li>
+    <li><strong>4. 自检</strong>
+      <pre>python scripts\build_feed.py --selftest
+python scripts\build_feed.py --fixtures
+python scripts\inbox.py check</pre>
+      <span class="ok">成功回显：INBOX OK total=N ...（退出码 0）</span>
+    </li>
+    <li><strong>5. 转正</strong>
+      <pre>python scripts\inbox.py promote L2026xxxx-xxxxxx --provider "平台名称" --verified-at &lt;与 offers.json 完全一致的 UTC 时间&gt;</pre>
+      <p class="note">同一 provider 多条记录时必须用 --verified-at 指定。此步不生成任何额度数值。</p>
+    </li>
+    <li><strong>6. 刷新并发布</strong>
+      <pre>python scripts\local_refresh.py
+python scripts\local_refresh.py --publish</pre>
+      <span class="ok">成功回显：退出码 0。</span>
+    </li>
+  </ol>
+
+  <table>
+    <thead><tr><th style="width:70px">退出码</th><th>含义</th><th style="width:230px">先看哪里</th></tr></thead>
+    <tbody>
+      <tr><td>0</td><td>成功</td><td>—</td></tr>
+      <tr><td>1</td><td>校验 / 编译 / 发布被拒（含自检失败、空数据、防覆盖中止）</td><td>终端原因；out\refresh-report.json</td></tr>
+      <tr><td>2</td><td>用法错误</td><td>参数拼错</td></tr>
+      <tr><td>3</td><td>数据老化告警（超过 3 天且未发布修复）</td><td>回到首页红线，补核验</td></tr>
+      <tr><td>4</td><td>缺少可用凭证（仅 --publish）</td><td>凭据管理器里的 GitHub token</td></tr>
+      <tr><td>5</td><td>网络不可达</td><td>稍后重试，或加 --live-source offline</td></tr>
+    </tbody>
+  </table>
+
+  <div class="foot">
+    <span>核验人：</span><span class="grow"></span>
+    <span>核验日期：</span><span class="grow"></span>
+  </div>
+
+</div>
+</body>
+</html>
