@@ -7,8 +7,12 @@
       "claim": "[候选] 官方入口 https://help.aliyun.com/zh/model-studio/models；页面命中关键词：免费、试用、free；疑似形态：count / once 或 monthly（来自人工核验清单的形态提示，不是核验结论）",
       "heard_from": "自动发现 discover_leads.py：官方页面关键词扫描",
       "heard_at": "2026-11-14",
-      "status": "unverified",
-      "note": "自动发现于 2026-11-14T10:06:06Z（UTC），抓取页面 HTTP 200；命中关键词：免费、试用、free；疑似形态提示：count / once 或 monthly（人工清单给的提示，不是核验结论；本条目不含任何额度数值）；在页面上看什么：模型列表中图像生成相关行的「免费额度」列；再进该模型「计费」小节看单价与有效期。页内搜「万相」「免费额度」；页面标题：模型大全功能规格与计费-大模型服务平台百炼-阿里云_大模型服务平台百炼(Model Studio)-大模型服务平台百炼(Model Studio)-阿里云帮助中心；sources/offers.json 尚无该平台记录。"
+      "status": "promoted",
+      "note": "自动发现于 2026-11-14T10:06:06Z（UTC），抓取页面 HTTP 200；命中关键词：免费、试用、free；疑似形态提示：count / once 或 monthly（人工清单给的提示，不是核验结论；本条目不含任何额度数值）；在页面上看什么：模型列表中图像生成相关行的「免费额度」列；再进该模型「计费」小节看单价与有效期。页内搜「万相」「免费额度」；页面标题：模型大全功能规格与计费-大模型服务平台百炼-阿里云_大模型服务平台百炼(Model Studio)-大模型服务平台百炼(Model Studio)-阿里云帮助中心；sources/offers.json 尚无该平台记录。",
+      "promoted_to": {
+        "provider": "阿里云百炼 · 通义万相",
+        "verified_at": "2026-11-14T12:47:36+00:00"
+      }
     },
     {
       "id": "L20261114-100606-304586",
@@ -156,12 +160,16 @@
     },
     {
       "id": "L20261114-120457-e194aa",
-      "provider": "阿里 · 通义万相官网",
+      "provider": "阿里云百炼 · 通义万相",
       "claim": "[候选] 官方入口 https://help.aliyun.com/zh/model-studio/model-pricing；页面命中关键词：免费额度、试用、体验、限时、free、credit；疑似形态：credit 或 count / daily 或 once（来自人工核验清单的形态提示，不是核验结论）",
       "heard_from": "自动发现 discover_leads.py：官方页面关键词扫描",
       "heard_at": "2026-11-14",
-      "status": "unverified",
-      "note": "自动发现于 2026-11-14T12:04:57Z（UTC），抓取方式：静态 HTTP，页面 HTTP 200；命中关键词：免费额度、试用、体验、限时、free、credit；疑似形态提示：credit 或 count / daily 或 once（人工清单给的提示，不是核验结论；本条目不含任何结构化额度字段）；在页面上看什么：「模型计费」页万相表格：「万相图像生成与编辑」的免费额度列（如 wan2.7-image 50 张）与「万相文生图」无免费额度的说明；免费额度仅华北2（北京）。页内搜「万相」「免费额度」；页面标题：阿里云百炼模型价格-大模型服务平台百炼(Model Studio)-阿里云帮助中心；sources/offers.json 尚无该平台记录。"
+      "status": "promoted",
+      "note": "自动发现于 2026-11-14T12:04:57Z（UTC），抓取方式：静态 HTTP，页面 HTTP 200；命中关键词：免费额度、试用、体验、限时、free、credit；疑似形态提示：credit 或 count / daily 或 once（人工清单给的提示，不是核验结论；本条目不含任何结构化额度字段）；在页面上看什么：「模型计费」页万相表格：「万相图像生成与编辑」的免费额度列（如 wan2.7-image 50 张）与「万相文生图」无免费额度的说明；免费额度仅华北2（北京）。页内搜「万相」「免费额度」；页面标题：阿里云百炼模型价格-大模型服务平台百炼(Model Studio)-阿里云帮助中心；sources/offers.json 尚无该平台记录。",
+      "promoted_to": {
+        "provider": "阿里云百炼 · 通义万相",
+        "verified_at": "2026-11-14T12:47:36+00:00"
+      }
     },
     {
       "id": "L20261114-120457-029c71",
