@@ -1,0 +1,341 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<title>FreeModal 数据脑 · 公开免费额度清单</title>
+<style>
+  :root {
+    --bg: #f6f7f9;
+    --card: #ffffff;
+    --ink: #16181d;
+    --ink-2: #4b515c;
+    --ink-3: #767d8a;
+    --line: #e3e6eb;
+    --accent: #1f6feb;
+    --warn-bg: #fff6e5;
+    --warn-line: #e8b45a;
+    --warn-ink: #7a4b00;
+    --ok: #1a7f4b;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #101216;
+      --card: #171a20;
+      --ink: #e9ecf1;
+      --ink-2: #b3bac6;
+      --ink-3: #8b93a1;
+      --line: #262b34;
+      --accent: #6ea8ff;
+      --warn-bg: #2a2113;
+      --warn-line: #7a5a1f;
+      --warn-ink: #f0c675;
+      --ok: #58d19a;
+    }
+  }
+  * { box-sizing: border-box; }
+  html { -webkit-text-size-adjust: 100%; }
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--ink);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC",
+      "Hiragino Sans GB", "Microsoft YaHei", "Noto Sans CJK SC", sans-serif;
+    font-size: 16px;
+    line-height: 1.7;
+    overflow-x: hidden;
+  }
+  .wrap {
+    max-width: 860px;
+    margin: 0 auto;
+    padding: 28px 18px 56px;
+  }
+  header h1 {
+    font-size: 26px;
+    line-height: 1.3;
+    margin: 0 0 6px;
+    letter-spacing: -0.2px;
+  }
+  header p {
+    margin: 0;
+    color: var(--ink-2);
+    font-size: 15px;
+  }
+  .banner {
+    margin: 20px 0 26px;
+    padding: 16px 18px;
+    background: var(--warn-bg);
+    border: 1px solid var(--warn-line);
+    border-radius: 12px;
+    color: var(--warn-ink);
+    font-size: 15px;
+  }
+  .banner strong { display: block; font-size: 16px; margin-bottom: 4px; }
+  .banner code {
+    background: rgba(0,0,0,.06);
+    border-radius: 4px;
+    padding: 1px 5px;
+    font-size: 13px;
+  }
+  @media (prefers-color-scheme: dark) {
+    .banner code { background: rgba(255,255,255,.08); }
+  }
+  section {
+    background: var(--card);
+    border: 1px solid var(--line);
+    border-radius: 14px;
+    padding: 20px 20px 18px;
+    margin-bottom: 18px;
+  }
+  h2 {
+    font-size: 18px;
+    margin: 0 0 10px;
+    line-height: 1.4;
+  }
+  p { margin: 0 0 10px; }
+  p:last-child { margin-bottom: 0; }
+  .muted { color: var(--ink-2); font-size: 14.5px; }
+  .tiny { color: var(--ink-3); font-size: 13px; }
+  code, .mono {
+    font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace;
+    font-size: 13.5px;
+  }
+  .url {
+    display: block;
+    margin: 10px 0;
+    padding: 12px 14px;
+    background: var(--bg);
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    word-break: break-all;
+    text-decoration: none;
+    color: var(--accent);
+  }
+  .url:hover { border-color: var(--accent); }
+  ul { margin: 8px 0 0; padding-left: 20px; }
+  li { margin: 4px 0; }
+  .stats {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 10px;
+    margin: 4px 0 12px;
+  }
+  .stat {
+    padding: 12px 14px;
+    background: var(--bg);
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    min-width: 0;
+  }
+  .stat .k { color: var(--ink-3); font-size: 12.5px; }
+  .stat .v {
+    font-size: 15px;
+    font-weight: 600;
+    word-break: break-word;
+  }
+  .cards { display: grid; gap: 12px; }
+  .card {
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    padding: 14px 16px;
+  }
+  .card h3 {
+    margin: 0 0 2px;
+    font-size: 16px;
+    line-height: 1.4;
+  }
+  .card .quota {
+    color: var(--ink-2);
+    font-size: 14.5px;
+    margin-bottom: 8px;
+  }
+  .tags { display: flex; flex-wrap: wrap; gap: 6px; margin: 0 0 8px; }
+  .tag {
+    font-size: 12.5px;
+    color: var(--ink-2);
+    background: var(--bg);
+    border: 1px solid var(--line);
+    border-radius: 999px;
+    padding: 2px 9px;
+    white-space: nowrap;
+  }
+  .tag.ok { color: var(--ok); border-color: currentColor; }
+  details summary {
+    cursor: pointer;
+    color: var(--ink-2);
+    font-size: 13.5px;
+    list-style: none;
+  }
+  details summary::-webkit-details-marker { display: none; }
+  details summary::after { content: " ▾"; }
+  details[open] summary::after { content: " ▴"; }
+  details p {
+    margin: 8px 0 0;
+    font-size: 13.5px;
+    color: var(--ink-2);
+    word-break: break-word;
+  }
+  .links { display: flex; flex-wrap: wrap; gap: 14px; margin-top: 4px; }
+  .links a { color: var(--accent); text-decoration: none; }
+  .links a:hover { text-decoration: underline; }
+  footer {
+    margin-top: 8px;
+    color: var(--ink-3);
+    font-size: 13px;
+    line-height: 1.75;
+  }
+  .err { color: #c0392b; }
+  @media (prefers-color-scheme: dark) { .err { color: #ff8a80; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <h1>FreeModal 数据脑</h1>
+    <p>人工核验的公开免费额度清单，编译成一份静态 JSON。</p>
+  </header>
+
+  <div class="banner" role="note">
+    <strong>当前刷新方式：由 push 和手动 dispatch 触发，定时触发未生效。</strong>
+    工作流里的 <code>schedule</code> 配置仍保留，但它当前不工作。两次触发之间 <code>generated_at</code> 可能长时间不更新；它只在实际 push 或手动 dispatch 后改变。
+  </div>
+
+  <section>
+    <h2>这个仓库是什么</h2>
+    <p>这里是 FreeModal 的「数据脑」：只收录<strong>经官方页面人工核验</strong>的公开免费额度信息，经构建脚本清洗后产出一份静态 <code>offers.json</code>，由 GitHub Pages 托管，供技能端匿名只读拉取。</p>
+    <p class="muted">仓库本身是一个静态数据源，不提供登录、不收集用户信息、不代理任何生成请求。额度与政策随时可能调整，一律以各平台官方最新公告为准。</p>
+  </section>
+
+  <section>
+    <h2>数据怎么用</h2>
+    <p>直接 GET 下面这个地址即可，无需鉴权、无需 API Key：</p>
+    <a class="url mono" href="./offers.json">https://yibur.github.io/freemodal-data-brain/offers.json</a>
+    <p class="muted">顶层字段：</p>
+    <ul class="muted">
+      <li><code>schema_version</code>：数据结构版本，当前为 <code>1.0</code>。</li>
+      <li><code>generated_at</code>：本次产物的生成时间（UTC，ISO 8601）。</li>
+      <li><code>offers</code>：条目数组。每条含 <code>provider</code>（平台）、<code>modality</code>（模态）、<code>quota</code>（<code>amount</code> / <code>unit</code> / <code>period</code>）、<code>status</code>（核验状态），以及 <code>watermark</code>、<code>commercial_rights</code>、<code>queue_speed</code>、<code>resolution</code> 四个防坑字段和一段 <code>note</code> 说明。</li>
+      <li><code>source_note</code>：口径与免责说明。</li>
+    </ul>
+    <p class="tiny">字段语义与降级约定见仓库文档，不在本页重复。</p>
+    <div class="links">
+      <a href="./offers.json">offers.json</a>
+      <a href="./README.md">README.md</a>
+    </div>
+  </section>
+
+  <section>
+    <h2>当前状态</h2>
+    <div class="stats">
+      <div class="stat"><div class="k">已收录条目</div><div class="v" id="stat-count">读取中…</div></div>
+      <div class="stat"><div class="k">最近生成时间</div><div class="v" id="stat-time">读取中…</div></div>
+      <div class="stat"><div class="k">schema 版本</div><div class="v" id="stat-schema">读取中…</div></div>
+    </div>
+    <p class="tiny">以上数字由本页在打开时<strong>直接读取同目录 <code>offers.json</code></strong> 得出，不是写死在页面里的；读取失败会如实显示失败原因。页面不缓存任何结论，刷新即重新读取。</p>
+  </section>
+
+  <section>
+    <h2>条目</h2>
+    <div class="cards" id="cards">
+      <p class="muted" id="cards-hint">正在读取 offers.json…</p>
+    </div>
+  </section>
+
+  <footer>
+    <p id="disclaimer">本页仅呈现公开核验结果，不构成任何收益或使用承诺。额度、水印、商用授权等以各平台官方最新公告为准。</p>
+    <p>刷新方式：push 或手动 dispatch；定时触发未生效。</p>
+  </footer>
+</div>
+
+<script>
+(function () {
+  var countEl = document.getElementById('stat-count');
+  var timeEl = document.getElementById('stat-time');
+  var schemaEl = document.getElementById('stat-schema');
+  var cardsEl = document.getElementById('cards');
+  var hintEl = document.getElementById('cards-hint');
+  var disclaimerEl = document.getElementById('disclaimer');
+
+  function esc(s) {
+    return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) {
+      return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c];
+    });
+  }
+
+  function fmtTime(iso) {
+    var d = new Date(iso);
+    if (isNaN(d.getTime())) return String(iso || '未知');
+    var pad = function (n) { return n < 10 ? '0' + n : '' + n; };
+    return d.getUTCFullYear() + '-' + pad(d.getUTCMonth() + 1) + '-' + pad(d.getUTCDate()) +
+      ' ' + pad(d.getUTCHours()) + ':' + pad(d.getUTCMinutes()) + ' UTC';
+  }
+
+  var periodText = {
+    once: '一次性',
+    daily: '每日',
+    monthly: '每月',
+    per_style_daily: '每风格每日'
+  };
+  var unitText = { count: '次', image: '张', second: '秒' };
+  var watermarkText = { none: '无水印', conditional: '条件性 / 未明确', yes: '有水印' };
+  var rightsText = { allowed: '允许商用', restricted: '禁止商用', unknown: '未说明' };
+  var statusText = { verified: '已核验', pending: '待核验', expired: '已过期' };
+
+  function quotaLine(q) {
+    if (!q) return '额度未说明';
+    var unit = unitText[q.unit] || q.unit || '';
+    var period = periodText[q.period] || q.period || '';
+    return (q.amount == null ? '额度未知' : q.amount + ' ' + unit) + (period ? ' · ' + period : '');
+  }
+
+  fetch('./offers.json', { cache: 'no-store' })
+    .then(function (r) {
+      if (!r.ok) throw new Error('HTTP ' + r.status);
+      return r.json();
+    })
+    .then(function (data) {
+      var offers = Array.isArray(data.offers) ? data.offers : [];
+      countEl.textContent = offers.length + ' 条';
+      timeEl.textContent = fmtTime(data.generated_at);
+      schemaEl.textContent = data.schema_version || '未标注';
+      if (data.source_note) disclaimerEl.textContent = data.source_note;
+
+      hintEl.remove();
+      if (!offers.length) {
+        var empty = document.createElement('p');
+        empty.className = 'muted';
+        empty.textContent = '当前数据里没有条目。';
+        cardsEl.appendChild(empty);
+        return;
+      }
+      offers.forEach(function (o) {
+        var card = document.createElement('div');
+        card.className = 'card';
+        var tags = [
+          '<span class="tag ok">' + esc(statusText[o.status] || o.status || '状态未知') + '</span>',
+          o.modality ? '<span class="tag">' + esc(o.modality) + '</span>' : '',
+          '<span class="tag">水印：' + esc(watermarkText[o.watermark] || o.watermark || '未说明') + '</span>',
+          '<span class="tag">商用：' + esc(rightsText[o.commercial_rights] || o.commercial_rights || '未说明') + '</span>',
+          o.queue_speed ? '<span class="tag">排队：' + esc(o.queue_speed) + '</span>' : '',
+          o.resolution ? '<span class="tag">分辨率：' + esc(o.resolution) + '</span>' : ''
+        ].join('');
+        card.innerHTML =
+          '<h3>' + esc(o.provider || '未命名条目') + '</h3>' +
+          '<div class="quota">' + esc(quotaLine(o.quota)) + '</div>' +
+          '<div class="tags">' + tags + '</div>' +
+          (o.note ? '<details><summary>核验说明</summary><p>' + esc(o.note) + '</p></details>' : '');
+        cardsEl.appendChild(card);
+      });
+    })
+    .catch(function (err) {
+      var msg = '读取 offers.json 失败：' + (err && err.message ? err.message : err) + '（可直接打开上方链接核对）';
+      countEl.textContent = '读取失败';
+      timeEl.textContent = '读取失败';
+      schemaEl.textContent = '读取失败';
+      if (hintEl) { hintEl.className = 'err'; hintEl.textContent = msg; }
+    });
+})();
+</script>
+</body>
+</html>
