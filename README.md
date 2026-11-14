@@ -6,10 +6,12 @@
 
 ## 一、先看懂它做什么
 
+> **当前刷新触发方式（实测结论）**：由 **push** 和 **手动 dispatch** 触发刷新，**定时触发未生效**。工作流里的 `schedule` 配置保留在文件中，但它当前不工作——不要把「配了 cron」理解为「配了就会跑」。核验到 13 个调度窗口 0 次触发，`offers.json` 的 `generated_at` 只在实际 push 或手动 dispatch 后更新。
+
 ```
 你（人工/AI 辅助）核验官方页面
         ↓ 写入 sources/offers.json（可存私有核验字段）
-GitHub Actions 每小时第 17 分（UTC）自动运行
+GitHub Actions 由 push 或手动 dispatch 触发（定时触发当前未生效）
         ↓ 校验 → 剥离私有字段 → 剔除过期核验 → 写 offers.json → commit
 GitHub Pages 静态托管 offers.json
         ↓ 匿名只读 URL
@@ -22,11 +24,12 @@ free-modal-radar 技能拉取 → 双轨折算 → 卡册看板
 
 | 选择 | 原因 |
 | :--- | :--- |
-| `cron: '17 * * * *'` | GitHub Actions 最短间隔 5 分钟，小时级足够；**避开整点高峰**（整点排队最严重，官方与社区均建议用 17 分这类奇数分钟） |
-| 时间按 **UTC** | `on.schedule` 默认 UTC，且只在默认分支最新提交上生效。UTC 每小时 17 分 = **北京时间每小时 17 分**（时差 8 小时为整数），无需换算也无需改时区 |
-| `workflow_dispatch` | 首次可手动点一次立即出数据，不用等整点 |
-| 每次都改写 `generated_at` | 技能端 2 小时过期阈值；小时级刷新保证不会 stale |
-| 每次 commit | 公开仓库 **60 天无任何提交会自动停用定时任务**；小时级提交同时解决「保活」 |
+| `cron: '*/20 * * * *'` | 配置保留，但**当前不工作**：实测 13 个调度窗口 0 次触发，故刷新实际只靠 push 与手动 dispatch。配置本身仍在，便于平台侧恢复后直接生效 |
+| 时间按 **UTC** | `on.schedule` 默认 UTC，且只在默认分支最新提交上生效；当前定时未触发，UTC 口径仅作配置说明 |
+| `workflow_dispatch` | **当前主力触发方式之一**：手动点一次立即出数据 |
+| `push`（限定路径） | **当前主力触发方式之一**：改动 `sources/**`、`schema/**`、`scripts/**` 时自动构建 |
+| 每次都改写 `generated_at` | 技能端 2 小时过期阈值；但刷新依赖 push / dispatch，**没有新提交就会持续变旧并最终 stale** |
+| 每次 commit | 公开仓库 **60 天无任何提交会自动停用定时任务**；定时触发既然未生效，保活提交目前只随 push 构建产生 |
 | GitHub Pages 而非 raw URL | `raw.githubusercontent.com` 有约 5 分钟 CDN 缓存且不适合当 API 端点；Pages 是正经静态托管 |
 | `.nojekyll` | 禁止 Jekyll 构建吞掉非 HTML 文件，保证 `offers.json` 原样可访问 |
 | 纯 Python 标准库 | 与技能端一致，零依赖，Actions 无需 `pip install` |
@@ -73,8 +76,9 @@ python scripts/build_feed.py --verify --json
 
 ## 七、已知限制与网络现实（国内用户必读）
 
-- Actions 定时任务**可能延迟 5–30 分钟**，且只在默认分支的最新提交上运行；不是精确闹钟。
-- 若仓库连续 60 天无任何提交，GitHub 会自动停用 schedule；本骨架的小时级 commit 已规避。工作流在内容确实没变时会用 `--allow-empty` 提交一次，保证「每小时都有提交」这条保活前提在任何情况下都成立。
+- Actions 定时任务（`schedule`）**当前未生效**：实测 13 个调度窗口 0 次触发。刷新实际由 push 与手动 dispatch 驱动，因此两次触发之间的间隔不受「每 20 分钟」约束，`generated_at` 可能长时间不更新。
+- 即使定时恢复，Actions 也可能延迟 5–30 分钟，且只在默认分支的最新提交上运行；它不是精确闹钟。
+- 若仓库连续 60 天无任何提交，GitHub 会自动停用 schedule；当前保活提交只随 push 构建产生。
 - 公开仓库的 Actions 日志与产物全部公开，注意信息边界。
 - 数据源 URL 由技能端环境变量或配置注入，本仓库不硬编码任何 URL。
 
@@ -82,11 +86,11 @@ python scripts/build_feed.py --verify --json
 
 | 选项 | URL 形式 | 缓存 / 新鲜度 | 国内可访问性 | 结论 |
 | :--- | :--- | :--- | :--- | :--- |
-| **A. GitHub Pages** | `https://<用户名>.github.io/<仓库名>/offers.json` | 每次 commit 重新部署，约 30–60 秒生效，**小时级新鲜度可保证** | 时好时坏，可能打不开 | **默认推荐**，先在浏览器实测 |
-| **B. raw 直链** | `https://raw.githubusercontent.com/<用户名>/<仓库名>/main/offers.json` | 约有 5 分钟 CDN 缓存，小时级更新**够用** | 同样不稳定，且官方不建议当 API 端点 | 备选 / 排障用 |
-| **C. jsDelivr** | `https://cdn.jsdelivr.net/gh/<用户名>/<仓库名>@main/offers.json` | 未固定版本的分支 URL **缓存可达 7 天**（另有资料称 12 小时） | 国内相对更稳 | **小时级场景禁用**；除非接受数据滞后一周 |
+| **A. GitHub Pages** | `https://<用户名>.github.io/<仓库名>/offers.json` | 每次 commit 重新部署，约 30–60 秒生效；新鲜度取决于是否有 push / dispatch | 时好时坏，可能打不开 | **默认推荐**，先在浏览器实测 |
+| **B. raw 直链** | `https://raw.githubusercontent.com/<用户名>/<仓库名>/main/offers.json` | 约有 5 分钟 CDN 缓存，跟随 commit 更新 | 同样不稳定，且官方不建议当 API 端点 | 备选 / 排障用 |
+| **C. jsDelivr** | `https://cdn.jsdelivr.net/gh/<用户名>/<仓库名>@main/offers.json` | 未固定版本的分支 URL **缓存可达 7 天**（另有资料称 12 小时） | 国内相对更稳 | **不适合要求新鲜的场景**；除非接受数据滞后一周 |
 
-> **决策**：小时级更新是硬指标，所以 **C 不能用**。A 与 B 之间选 A；若两者在国内都访问不稳，不要靠 CDN 绕，应改用**方案 A 的国内静态托管**（如已连接的环境、对象存储静态站），并保留同一份 `offers.json` 产物——数据脑的构建部分完全不用改，只需换 URL。
+> **决策**：技能端有 2 小时过期阈值，所以需要尽量新鲜的产物。**当前定时触发未生效**，新鲜度只能靠 push / 手动 dispatch 维持；A 与 B 之间选 A；若两者在国内都访问不稳，不要靠 CDN 绕，应改用**方案 A 的国内静态托管**（如已连接的环境、对象存储静态站），并保留同一份 `offers.json` 产物——数据脑的构建部分完全不用改，只需换 URL。
 
 ### 7.2 两个容易踩的坑
 
