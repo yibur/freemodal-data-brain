@@ -18,6 +18,9 @@
     --warn-line: #e8b45a;
     --warn-ink: #7a4b00;
     --ok: #1a7f4b;
+    --alarm-bg: #fdecea;
+    --alarm-line: #d9534f;
+    --alarm-ink: #7a1c17;
   }
   @media (prefers-color-scheme: dark) {
     :root {
@@ -32,6 +35,9 @@
       --warn-line: #7a5a1f;
       --warn-ink: #f0c675;
       --ok: #58d19a;
+      --alarm-bg: #2b1414;
+      --alarm-line: #8a3a34;
+      --alarm-ink: #ffb4ab;
     }
   }
   * { box-sizing: border-box; }
@@ -72,6 +78,12 @@
     font-size: 15px;
   }
   .banner strong { display: block; font-size: 16px; margin-bottom: 4px; }
+  .banner.alarm {
+    background: var(--alarm-bg);
+    border-color: var(--alarm-line);
+    color: var(--alarm-ink);
+    margin-top: -6px;
+  }
   .banner code {
     background: rgba(0,0,0,.06);
     border-radius: 4px;
@@ -201,6 +213,8 @@
     工作流里的 <code>schedule</code> 配置仍保留，但它当前不工作。两次触发之间 <code>generated_at</code> 可能长时间不更新；它只在实际 push 或手动 dispatch 后改变。
   </div>
 
+  <div class="banner alarm" id="stale-alarm" role="alert" hidden></div>
+
   <section>
     <h2>这个仓库是什么</h2>
     <p>这里是 FreeModal 的「数据脑」：只收录<strong>经官方页面人工核验</strong>的公开免费额度信息，经构建脚本清洗后产出一份静态 <code>offers.json</code>，由 GitHub Pages 托管，供技能端匿名只读拉取。</p>
@@ -256,6 +270,8 @@
   var cardsEl = document.getElementById('cards');
   var hintEl = document.getElementById('cards-hint');
   var disclaimerEl = document.getElementById('disclaimer');
+  var alarmEl = document.getElementById('stale-alarm');
+  var STALE_ALERT_DAYS = 3;
 
   function esc(s) {
     return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) {
@@ -300,6 +316,18 @@
       timeEl.textContent = fmtTime(data.generated_at);
       schemaEl.textContent = data.schema_version || '未标注';
       if (data.source_note) disclaimerEl.textContent = data.source_note;
+
+      var generatedAt = new Date(data.generated_at);
+      if (!isNaN(generatedAt.getTime())) {
+        var ageDays = (Date.now() - generatedAt.getTime()) / 86400000;
+        if (ageDays > STALE_ALERT_DAYS) {
+          alarmEl.hidden = false;
+          alarmEl.innerHTML =
+            '<strong>数据老化告警：线上数据已 ' + ageDays.toFixed(1) + ' 天未更新（阈值 ' + STALE_ALERT_DAYS + ' 天）。</strong>' +
+            '最近生成时间 ' + esc(fmtTime(data.generated_at)) +
+            '。本机定时刷新任务可能没有运行、发布失败，或本机长时间关机。请检查计划任务状态与刷新日志。';
+        }
+      }
 
       hintEl.remove();
       if (!offers.length) {

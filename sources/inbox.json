@@ -1,4 +1,4 @@
 {
-  "_comment": "线索区：只记「听说」，不参与编译，不会进入公开 offers.json。核实通过后重写为 sources/offers.json 的完整记录，并把这里的 status 改为 promoted。条目形状：{\"provider\": \"平台名\", \"claim\": \"听说的额度内容\", \"heard_from\": \"来源\", \"heard_at\": \"YYYY-MM-DD\", \"status\": \"unverified\"}。禁止把线索原样搬进正式清单。",
+  "_comment": "线索区：只记「听说」，永远不会被编译进公开 offers.json。状态流转：unverified（新线索）-> verifying（核验中）-> promoted（已在 sources/offers.json 有对应真实记录）/ rejected（不收录）。由 scripts/inbox.py 负责流转；编译时只做一致性校验（promoted 必须对得上正式清单里的 provider 与 _verified_at），不会从线索生成任何额度数值。条目禁止出现 quota / amount / unit / period 等额度字段。",
   "inbox": []
 }
