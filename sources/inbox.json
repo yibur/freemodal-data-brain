@@ -1,4 +1,185 @@
 {
   "_comment": "线索区：只记「听说」，永远不会被编译进公开 offers.json。状态流转：unverified（新线索）-> verifying（核验中）-> promoted（已在 sources/offers.json 有对应真实记录）/ rejected（不收录）。由 scripts/inbox.py 负责流转；编译时只做一致性校验（promoted 必须对得上正式清单里的 provider 与 _verified_at），不会从线索生成任何额度数值。条目禁止出现 quota / amount / unit / period 等额度字段。",
-  "inbox": []
+  "inbox": [
+    {
+      "id": "L20261114-100606-a59657",
+      "provider": "阿里云百炼 · 通义万相",
+      "claim": "[候选] 官方入口 https://help.aliyun.com/zh/model-studio/models；页面命中关键词：免费、试用、free；疑似形态：count / once 或 monthly（来自人工核验清单的形态提示，不是核验结论）",
+      "heard_from": "自动发现 discover_leads.py：官方页面关键词扫描",
+      "heard_at": "2026-11-14",
+      "status": "unverified",
+      "note": "自动发现于 2026-11-14T10:06:06Z（UTC），抓取页面 HTTP 200；命中关键词：免费、试用、free；疑似形态提示：count / once 或 monthly（人工清单给的提示，不是核验结论；本条目不含任何额度数值）；在页面上看什么：模型列表中图像生成相关行的「免费额度」列；再进该模型「计费」小节看单价与有效期。页内搜「万相」「免费额度」；页面标题：模型大全功能规格与计费-大模型服务平台百炼-阿里云_大模型服务平台百炼(Model Studio)-大模型服务平台百炼(Model Studio)-阿里云帮助中心；sources/offers.json 尚无该平台记录。"
+    },
+    {
+      "id": "L20261114-100606-304586",
+      "provider": "百度智能云 · 千帆",
+      "claim": "[候选] 官方入口 https://cloud.baidu.com/product/qianfan.html；页面命中关键词：赠送、体验、限时、额度、credit；疑似形态：count 或 credit / once（来自人工核验清单的形态提示，不是核验结论）",
+      "heard_from": "自动发现 discover_leads.py：官方页面关键词扫描",
+      "heard_at": "2026-11-14",
+      "status": "unverified",
+      "note": "自动发现于 2026-11-14T10:06:06Z（UTC），抓取页面 HTTP 200；命中关键词：赠送、体验、限时、额度、credit；疑似形态提示：count 或 credit / once（人工清单给的提示，不是核验结论；本条目不含任何额度数值）；在页面上看什么：产品页「新用户免费额度」或「价格」区块，再点进计费文档看表格。页内搜「免费额度」「文生图」；页面标题：百度千帆-百度智能云；sources/offers.json 尚无该平台记录。"
+    },
+    {
+      "id": "L20261114-100606-cc8bfd",
+      "provider": "硅基流动 SiliconFlow",
+      "claim": "[候选] 官方入口 https://www.siliconflow.cn/pricing；页面命中关键词：免费、限时、free；疑似形态：count / daily（价目 0 = 长期免费模型）/ credit / once（来自人工核验清单的形态提示，不是核验结论）",
+      "heard_from": "自动发现 discover_leads.py：官方页面关键词扫描",
+      "heard_at": "2026-11-14",
+      "status": "unverified",
+      "note": "自动发现于 2026-11-14T10:06:06Z（UTC），抓取页面 HTTP 200；命中关键词：免费、限时、free；疑似形态提示：count / daily（价目 0 = 长期免费模型）/ credit / once（人工清单给的提示，不是核验结论；本条目不含任何额度数值）；在页面上看什么：定价页模型价目表，筛「图像」类目，看是否有标价 0 的模型；新用户赠额说明；页面标题：大模型 API 价格方案 - 硅基流动 SiliconFlow；sources/offers.json 尚无该平台记录。"
+    },
+    {
+      "id": "L20261114-100606-1fd6e5",
+      "provider": "快手 · 可灵 AI",
+      "claim": "[候选] 官方入口 https://app.klingai.com/cn/；页面命中关键词：体验；疑似形态：credit / daily（来自人工核验清单的形态提示，不是核验结论）",
+      "heard_from": "自动发现 discover_leads.py：官方页面关键词扫描",
+      "heard_at": "2026-11-14",
+      "status": "unverified",
+      "note": "自动发现于 2026-11-14T10:06:06Z（UTC），抓取页面 HTTP 200；命中关键词：体验；疑似形态提示：credit / daily（人工清单给的提示，不是核验结论；本条目不含任何额度数值）；在页面上看什么：官网「会员 / 积分」页的公开说明文字（积分怎么发、每天多少、是否清零）。**若正文必须登录才可见，本条只进待核实**；页面标题：Kling AI: Next-Generation AI Creative Studio；落点：https://klingai.com/app/；sources/offers.json 尚无该平台记录。"
+    },
+    {
+      "id": "L20261114-100606-3372d4",
+      "provider": "MiniMax · 海螺 AI",
+      "claim": "[候选] 官方入口 https://hailuoai.com/；页面命中关键词：免费额度、赠送、试用、体验、限时、新用户；疑似形态：credit / daily（来自人工核验清单的形态提示，不是核验结论）",
+      "heard_from": "自动发现 discover_leads.py：官方页面关键词扫描",
+      "heard_at": "2026-11-14",
+      "status": "unverified",
+      "note": "自动发现于 2026-11-14T10:06:06Z（UTC），抓取页面 HTTP 200；命中关键词：免费额度、赠送、试用、体验、限时、新用户；疑似形态提示：credit / daily（人工清单给的提示，不是核验结论；本条目不含任何额度数值）；在页面上看什么：官网会员/权益页或帮助中心的公开定价说明。同上，登录墙后的内容不算判据；页面标题：海螺视频：每个想法都是一部大片；sources/offers.json 尚无该平台记录。"
+    },
+    {
+      "id": "L20261114-100606-425274",
+      "provider": "字节 · 即梦 AI",
+      "claim": "[候选] 官方入口 https://jimeng.jianying.com/；页面命中关键词：免费、赠送、体验、额度、free、credit；疑似形态：credit / daily（来自人工核验清单的形态提示，不是核验结论）",
+      "heard_from": "自动发现 discover_leads.py：官方页面关键词扫描",
+      "heard_at": "2026-11-14",
+      "status": "unverified",
+      "note": "自动发现于 2026-11-14T10:06:06Z（UTC），抓取页面 HTTP 200；命中关键词：免费、赠送、体验、额度、free、credit；疑似形态提示：credit / daily（人工清单给的提示，不是核验结论；本条目不含任何额度数值）；在页面上看什么：官网会员/积分说明页里关于免费积分的规则（发放周期、是否过期）；页面标题：即梦AI - 即刻造梦；sources/offers.json 尚无该平台记录。"
+    },
+    {
+      "id": "L20261114-100606-d798e5",
+      "provider": "MiniMax 开放平台",
+      "claim": "[候选] 官方入口 https://platform.minimax.cn/docs/pricing/overview；页面命中关键词：免费额度、赠送、体验、限时、新用户；疑似形态：count / once（来自人工核验清单的形态提示，不是核验结论）",
+      "heard_from": "自动发现 discover_leads.py：官方页面关键词扫描",
+      "heard_at": "2026-11-14",
+      "status": "unverified",
+      "note": "自动发现于 2026-11-14T10:06:06Z（UTC），抓取页面 HTTP 200；命中关键词：免费额度、赠送、体验、限时、新用户；疑似形态提示：count / once（人工清单给的提示，不是核验结论；本条目不含任何额度数值）；在页面上看什么：文档「定价概览」里的模型计费表与「免费额度」章节；页面标题：定价概览 - MiniMax 开放平台文档中心；sources/offers.json 尚无该平台记录。"
+    },
+    {
+      "id": "L20261114-100606-b8a04a",
+      "provider": "生数科技 · Vidu",
+      "claim": "[候选] 官方入口 https://www.vidu.cn/；页面命中关键词：免费、赠送、试用、体验、限时、新用户；疑似形态：second 或 credit / daily（来自人工核验清单的形态提示，不是核验结论）",
+      "heard_from": "自动发现 discover_leads.py：官方页面关键词扫描",
+      "heard_at": "2026-11-14",
+      "status": "unverified",
+      "note": "自动发现于 2026-11-14T10:06:06Z（UTC），抓取页面 HTTP 200；命中关键词：免费、赠送、试用、体验、限时、新用户；疑似形态提示：second 或 credit / daily（人工清单给的提示，不是核验结论；本条目不含任何额度数值）；在页面上看什么：官网会员/积分页的公开规则（视频按秒还是按条、积分周期）；页面标题：Vidu AI - Vidu AI - 全球领先的AI内容生产平台；sources/offers.json 尚无该平台记录。"
+    },
+    {
+      "id": "L20261114-100606-ab1c4a",
+      "provider": "Cloudflare Workers AI",
+      "claim": "[候选] 官方入口 https://developers.cloudflare.com/workers-ai/platform/pricing/；页面命中关键词：free、credit；疑似形态：credit / daily（长期免费额度，非活动）（来自人工核验清单的形态提示，不是核验结论）",
+      "heard_from": "自动发现 discover_leads.py：官方页面关键词扫描",
+      "heard_at": "2026-11-14",
+      "status": "unverified",
+      "note": "自动发现于 2026-11-14T10:06:06Z（UTC），抓取页面 HTTP 200；命中关键词：free、credit；疑似形态提示：credit / daily（长期免费额度，非活动）（人工清单给的提示，不是核验结论；本条目不含任何额度数值）；在页面上看什么：「Pricing」页的免费配额说明（每日神经元额度）与「Free allocation」段落；页面标题：Pricing · Cloudflare Workers AI docs；sources/offers.json 尚无该平台记录。"
+    },
+    {
+      "id": "L20261114-100606-ffd713",
+      "provider": "Stability AI",
+      "claim": "[候选] 官方入口 https://platform.stability.ai/pricing；页面命中关键词：free credits；疑似形态：credit / once 或 monthly（来自人工核验清单的形态提示，不是核验结论）",
+      "heard_from": "自动发现 discover_leads.py：官方页面关键词扫描",
+      "heard_at": "2026-11-14",
+      "status": "unverified",
+      "note": "自动发现于 2026-11-14T10:06:06Z（UTC），抓取页面 HTTP 200；命中关键词：free credits；疑似形态提示：credit / once 或 monthly（人工清单给的提示，不是核验结论；本条目不含任何额度数值）；在页面上看什么：定价页免费积分说明（注册赠送 / 每月重置）与 API 单价表；页面标题：Pricing - Stability AI API Platform；落点：https://docs.stability.ai/pricing；sources/offers.json 尚无该平台记录。"
+    },
+    {
+      "id": "L20261114-100606-e2a036",
+      "provider": "Runway",
+      "claim": "[候选] 官方入口 https://runway.com/pricing；页面命中关键词：free credits、quota；疑似形态：credit / once（来自人工核验清单的形态提示，不是核验结论）",
+      "heard_from": "自动发现 discover_leads.py：官方页面关键词扫描",
+      "heard_at": "2026-11-14",
+      "status": "unverified",
+      "note": "自动发现于 2026-11-14T10:06:06Z（UTC），抓取页面 HTTP 200；命中关键词：free credits、quota；疑似形态提示：credit / once（人工清单给的提示，不是核验结论；本条目不含任何额度数值）；在页面上看什么：定价页 Free 档的积分数量、是否一次性、是否带水印；页面标题：AI Image and Video Pricing from $12/month | Runway AI；sources/offers.json 尚无该平台记录。"
+    },
+    {
+      "id": "L20261114-100606-ebb7dd",
+      "provider": "Freepik",
+      "claim": "[候选] 官方入口 https://www.freepik.com/pricing；页面命中关键词：free trial、credit；疑似形态：credit / daily 或 monthly（来自人工核验清单的形态提示，不是核验结论）",
+      "heard_from": "自动发现 discover_leads.py：官方页面关键词扫描",
+      "heard_at": "2026-11-14",
+      "status": "unverified",
+      "note": "自动发现于 2026-11-14T10:06:06Z（UTC），抓取页面 HTTP 200；命中关键词：free trial、credit；疑似形态提示：credit / daily 或 monthly（人工清单给的提示，不是核验结论；本条目不含任何额度数值）；在页面上看什么：AI 相关方案页 Free 档的每日/每月 AI 积分说明；页面标题：Pricing plans | Magnific (formerly Freepik)；落点：https://www.magnific.com/pricing；sources/offers.json 尚无该平台记录。"
+    },
+    {
+      "id": "L20261114-100606-1a198c",
+      "provider": "fal.ai",
+      "claim": "[候选] 官方入口 https://fal.ai/pricing；页面命中关键词：free、credit；疑似形态：credit 或 count / once（来自人工核验清单的形态提示，不是核验结论）",
+      "heard_from": "自动发现 discover_leads.py：官方页面关键词扫描",
+      "heard_at": "2026-11-14",
+      "status": "unverified",
+      "note": "自动发现于 2026-11-14T10:06:06Z（UTC），抓取页面 HTTP 200；命中关键词：free、credit；疑似形态提示：credit 或 count / once（人工清单给的提示，不是核验结论；本条目不含任何额度数值）；在页面上看什么：定价页的免费额度 / 赠送说明与按次计费表；页面标题：Pricing | fal, your full stack for generative media；sources/offers.json 尚无该平台记录。"
+    },
+    {
+      "id": "L20261114-100606-dbbe17",
+      "provider": "Recraft",
+      "claim": "[已收录] 官方入口 https://www.recraft.ai/pricing；页面命中关键词：免费、free；疑似形态：count / per_style_daily（来自人工核验清单的形态提示，不是核验结论）",
+      "heard_from": "自动发现 discover_leads.py：官方页面关键词扫描",
+      "heard_at": "2026-11-14",
+      "status": "unverified",
+      "note": "自动发现于 2026-11-14T10:06:06Z（UTC），抓取页面 HTTP 200；命中关键词：免费、free；疑似形态提示：count / per_style_daily（人工清单给的提示，不是核验结论；本条目不含任何额度数值）；在页面上看什么：Free 列功能清单（每风格每天次数、商用、公开、并行）；页面标题：价格与方案 - Recraft；sources/offers.json 已有该平台记录（provider=Recraft，最近 _verified_at=2026-11-13T08:57:23+00:00），本条可能只是同一额度的重复发现，请人工判断是「新额度」还是「已收录」。"
+    },
+    {
+      "id": "L20261114-104924-101920",
+      "provider": "腾讯云 · 混元生图",
+      "claim": "[已收录] 官方入口 https://cloud.tencent.com/document/product/1729/105925；页面命中关键词：免费额度、赠送、体验；疑似形态：count / once（来自人工核验清单的形态提示，不是核验结论）；页面原文摘录（计费示例，不可当额度）：用户当月累计调用混元生图接口生成1万张图，混元生图的免费额度还剩余10张，所需支付的费用计算如下：",
+      "heard_from": "自动发现 discover_leads.py：官方页面关键词扫描",
+      "heard_at": "2026-11-14",
+      "status": "unverified",
+      "note": "自动发现于 2026-11-14T10:49:24Z（UTC），抓取方式：无头浏览器（playwright-bundled-chromium，等待 networkidle + 正文就绪），页面 HTTP 200；命中关键词：免费额度、赠送、体验；疑似形态提示：count / once（人工清单给的提示，不是核验结论；本条目不含任何结构化额度字段）；在页面上看什么：「计费概述」正文的资源包/免费额度表格，行名含「混元生图」；下方有效期与是否转后付费说明；页面出现免费表述：免费额度；页面原文摘录（仅文本，未转成额度字段；计费示例，不可当额度）：用户当月累计调用混元生图接口生成1万张图，混元生图的免费额度还剩余10张，所需支付的费用计算如下：；sources/offers.json 已有该平台记录（provider=腾讯混元生图，最近 _verified_at=2026-11-13T08:57:23+00:00），本条可能只是同一额度的重复发现，请人工判断是「新额度」还是「已收录」。；注意：上面的摘录是计费示例（不是「新用户赠送 / 免费额度」说明），不可当额度填写"
+    },
+    {
+      "id": "L20261114-104924-34d1e2",
+      "provider": "智谱 · BigModel（CogView）",
+      "claim": "[候选] 官方入口 https://bigmodel.cn/pricing；页面命中关键词：免费、体验、限时、额度；疑似形态：count 或 credit / once（来自人工核验清单的形态提示，不是核验结论）；页面原文摘录：免费模型（GLM-4.7-Flash、GLM-4.6V-Flash）的缓存也全部免费",
+      "heard_from": "自动发现 discover_leads.py：官方页面关键词扫描",
+      "heard_at": "2026-11-14",
+      "status": "unverified",
+      "note": "自动发现于 2026-11-14T10:49:24Z（UTC），抓取方式：无头浏览器（playwright-bundled-chromium，等待 networkidle + 正文就绪），页面 HTTP 200；命中关键词：免费、体验、限时、额度；疑似形态提示：count 或 credit / once（人工清单给的提示，不是核验结论；本条目不含任何结构化额度字段）；在页面上看什么：定价页模型卡片上的「免费」标记 / 赠送说明；页顶新用户赠送活动条。页内搜「CogView」「免费」；页面出现免费表述：免费模型、免费api；页面原文摘录（仅文本，未转成额度字段）：免费模型（GLM-4.7-Flash、GLM-4.6V-Flash）的缓存也全部免费；sources/offers.json 尚无该平台记录。"
+    },
+    {
+      "id": "L20261114-120457-ac85aa",
+      "provider": "火山引擎 · 方舟（Seedream / Seedance）",
+      "claim": "[候选] 官方入口 https://docs.volcengine.com/docs/ark/model-pricing?lang=zh；页面命中关键词：免费额度、赠送、体验、限时、free、quota；疑似形态：图像 count / once；视频 second / 按秒（来自人工核验清单的形态提示，不是核验结论）",
+      "heard_from": "自动发现 discover_leads.py：官方页面关键词扫描",
+      "heard_at": "2026-11-14",
+      "status": "unverified",
+      "note": "自动发现于 2026-11-14T12:04:57Z（UTC），抓取方式：静态 HTTP，页面 HTTP 200；命中关键词：免费额度、赠送、体验、限时、free、quota；疑似形态提示：图像 count / once；视频 second / 按秒（人工清单给的提示，不是核验结论；本条目不含任何结构化额度字段）；在页面上看什么：文档「模型价格」页：Seedream / Seedance 各模型的输入输出单价与「价格示例」；页面另注明 Managed Agents 首次开通赠送免费额度包（30 小时 + 500 次 web_search）。页内搜「Seedance」「免费额度」；sources/offers.json 尚无该平台记录。"
+    },
+    {
+      "id": "L20261114-120457-e194aa",
+      "provider": "阿里 · 通义万相官网",
+      "claim": "[候选] 官方入口 https://help.aliyun.com/zh/model-studio/model-pricing；页面命中关键词：免费额度、试用、体验、限时、free、credit；疑似形态：credit 或 count / daily 或 once（来自人工核验清单的形态提示，不是核验结论）",
+      "heard_from": "自动发现 discover_leads.py：官方页面关键词扫描",
+      "heard_at": "2026-11-14",
+      "status": "unverified",
+      "note": "自动发现于 2026-11-14T12:04:57Z（UTC），抓取方式：静态 HTTP，页面 HTTP 200；命中关键词：免费额度、试用、体验、限时、free、credit；疑似形态提示：credit 或 count / daily 或 once（人工清单给的提示，不是核验结论；本条目不含任何结构化额度字段）；在页面上看什么：「模型计费」页万相表格：「万相图像生成与编辑」的免费额度列（如 wan2.7-image 50 张）与「万相文生图」无免费额度的说明；免费额度仅华北2（北京）。页内搜「万相」「免费额度」；页面标题：阿里云百炼模型价格-大模型服务平台百炼(Model Studio)-阿里云帮助中心；sources/offers.json 尚无该平台记录。"
+    },
+    {
+      "id": "L20261114-120457-029c71",
+      "provider": "Adobe Firefly",
+      "claim": "[候选] 官方入口 https://www.adobe.com/products/firefly/plans.html；页面命中关键词：free、trial；疑似形态：credit / monthly（来自人工核验清单的形态提示，不是核验结论）",
+      "heard_from": "自动发现 discover_leads.py：官方页面关键词扫描",
+      "heard_at": "2026-11-14",
+      "status": "unverified",
+      "note": "自动发现于 2026-11-14T12:04:57Z（UTC），抓取方式：静态 HTTP，页面 HTTP 200；命中关键词：free、trial；疑似形态提示：credit / monthly（人工清单给的提示，不是核验结论；本条目不含任何结构化额度字段）；在页面上看什么：方案页 Free 档的每日生成次数与生成式积分说明；本机访问可能被地区/风控拦截，打不开就如实记待核实；页面标题：Compare plans that include generative AI | Adobe Firefly；sources/offers.json 尚无该平台记录。"
+    },
+    {
+      "id": "L20261114-120457-131ff2",
+      "provider": "Microsoft Designer",
+      "claim": "[候选] 官方入口 https://support.microsoft.com/en-us/topic/frequently-asked-questions-about-microsoft-designer-9264654d-22f5-43ac-961d-b35851bbb93f；页面命中关键词：free、credit、quota；疑似形态：count / daily（来自人工核验清单的形态提示，不是核验结论）",
+      "heard_from": "自动发现 discover_leads.py：官方页面关键词扫描",
+      "heard_at": "2026-11-14",
+      "status": "unverified",
+      "note": "自动发现于 2026-11-14T12:04:57Z（UTC），抓取方式：静态 HTTP，页面 HTTP 200；命中关键词：free、credit、quota；疑似形态提示：count / daily（人工清单给的提示，不是核验结论；本条目不含任何结构化额度字段）；在页面上看什么：官方 FAQ「Is Microsoft Designer free to use?」与 boosts 规则（无订阅用户每日 boosts 数量）；再看产品页 credits 说明；页面标题：Frequently asked questions about Microsoft Designer | Microsoft Support；落点：https://support.microsoft.com/en-us/designer/frequently-asked-questions-about-microsoft-designer；sources/offers.json 尚无该平台记录。"
+    }
+  ]
 }

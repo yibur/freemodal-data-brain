@@ -11,7 +11,8 @@
 3. --publish 时经 GitHub API（Git Data API）提交 sources/offers.json（有变化时）与 offers.json。
 
 线索区 sources/inbox.json 只做状态一致性校验（promoted 必须对得上真实已核验记录），
-不会从线索生成任何额度数值。
+不会从线索生成任何额度数值。每次刷新还会顺带跑一次 scripts/discover_leads.py 做候选
+线索发现（--no-discover 可关闭）；发现失败只记警告，不改变退出码。
 
 退出码：
   0 成功
@@ -54,6 +55,8 @@ INBOX_PATH = REPO_ROOT / "sources" / "inbox.json"
 LOCAL_PUBLISHED = REPO_ROOT / "offers.json"
 DEFAULT_OUT_DIR = REPO_ROOT / "out"
 DEFAULT_LOG = REPO_ROOT / "logs" / "refresh.log"
+DISCOVER_SCRIPT = SCRIPTS_DIR / "discover_leads.py"
+DEFAULT_DISCOVER_SECONDS = 120.0
 
 DEFAULT_SLUG = "yibur/freemodal-data-brain"
 DEFAULT_STALE_DAYS = 3.0
@@ -437,6 +440,67 @@ def publish_data(payload, token, slug, now):
     return info
 
 
+# --------------------------------------------------------------------------- 线索发现
+
+def run_discovery(max_seconds):
+    """顺带跑一次候选线索发现。任何失败都只记入报告，不改变刷新退出码。"""
+    info = {"enabled": True, "ok": False, "max_seconds": max_seconds}
+    started = time.monotonic()
+    if not DISCOVER_SCRIPT.is_file():
+        info.update(error="脚本不存在: " + str(DISCOVER_SCRIPT))
+        info["duration_seconds"] = round(time.monotonic() - started, 2)
+        return info
+    cmd = [sys.executable, str(DISCOVER_SCRIPT), "--max-seconds", str(max_seconds), "--json"]
+    try:
+        proc = subprocess.run(
+            cmd,
+            cwd=str(REPO_ROOT),
+            capture_output=True,
+            text=True,
+            encoding="utf-8",
+            errors="replace",
+            timeout=float(max_seconds) + 20.0,
+        )
+    except subprocess.TimeoutExpired:
+        info.update(error="发现脚本超过 " + str(int(float(max_seconds) + 20)) + "s 未返回，已跳过")
+        info["duration_seconds"] = round(time.monotonic() - started, 2)
+        return info
+    except Exception as exc:  # noqa: BLE001
+        info.update(error=type(exc).__name__ + ": " + str(exc)[:160])
+        info["duration_seconds"] = round(time.monotonic() - started, 2)
+        return info
+
+    info["exit_code"] = proc.returncode
+    info["duration_seconds"] = round(time.monotonic() - started, 2)
+    parsed = None
+    for line in (proc.stdout or "").splitlines():
+        if line.strip().startswith("{"):
+            try:
+                parsed = json.loads(line.strip())
+            except json.JSONDecodeError:
+                continue
+    if parsed is None:
+        info.update(error="发现脚本输出无法解析（exit=" + str(proc.returncode) + "）")
+        return info
+    info["ok"] = bool(parsed.get("ok")) and proc.returncode == 0
+    for key in (
+        "seed_total",
+        "seed_domestic",
+        "seed_overseas",
+        "scanned",
+        "reachable",
+        "keyword_hit",
+        "candidates",
+        "duplicates",
+        "listed",
+        "deadline_hit",
+    ):
+        if key in parsed:
+            info[key] = parsed[key]
+    info["error"] = str(parsed.get("error") or "")
+    return info
+
+
 # --------------------------------------------------------------------------- 主流程
 
 def summarize_report(report):
@@ -475,6 +539,26 @@ def summarize_report(report):
         + " rejected="
         + str(inbox.get("rejected", 0))
     )
+    discovery = report.get("discovery")
+    if discovery and discovery.get("enabled"):
+        if discovery.get("ok"):
+            lines.append(
+                "  发现      : 新增线索 "
+                + str(discovery.get("candidates"))
+                + " 条（命中 "
+                + str(discovery.get("keyword_hit"))
+                + "，重复 "
+                + str(discovery.get("duplicates"))
+                + "，覆盖 "
+                + str(discovery.get("reachable"))
+                + "/"
+                + str(discovery.get("seed_total"))
+                + " 家，耗时 "
+                + str(discovery.get("duration_seconds"))
+                + "s）"
+            )
+        else:
+            lines.append("  发现      : 未完成（" + str(discovery.get("error") or discovery.get("exit_code")) + "），已跳过")
     if aging.get("measured"):
         lines.append(
             "  老化      : "
@@ -552,7 +636,18 @@ def run(args, report):
             + " 天）。本机计划任务可能没有运行、发布失败，或本机长时间关机。"
         )
 
-    # 5. 发布
+    # 5. 候选线索发现（顺带跑一次；失败只记警告，不影响刷新主流程）
+    if not args.no_discover:
+        discovery = run_discovery(args.discover_max_seconds)
+        report["discovery"] = discovery
+        if not discovery.get("ok"):
+            warnings.append(
+                "候选线索发现未完成："
+                + str(discovery.get("error") or discovery.get("exit_code") or "未知原因")
+                + "（不影响本次刷新结果）"
+            )
+
+    # 6. 发布
     if args.publish:
         report["gate"] = run_publish_gate(contract)
         token, token_source = credential_token()
@@ -605,6 +700,8 @@ def build_parser():
     parser.add_argument("--out-dir", default=str(DEFAULT_OUT_DIR), help="输出目录，默认 out/")
     parser.add_argument("--log", default=str(DEFAULT_LOG), help="追加日志路径，默认 logs/refresh.log")
     parser.add_argument("--now", default=None, help="注入带时区的 ISO-8601 时间，便于复现测试")
+    parser.add_argument("--no-discover", action="store_true", help="本次不跑候选线索发现（默认每次刷新顺带跑一次）")
+    parser.add_argument("--discover-max-seconds", type=float, default=DEFAULT_DISCOVER_SECONDS, help="单次线索发现的时长上限，默认 60 秒")
     parser.add_argument("--json", action="store_true", help="以 JSON 输出报告")
     return parser
 
@@ -657,6 +754,14 @@ def main(argv=None):
                 "dropped": report.get("build", {}).get("dropped_count"),
             },
             "aging": report.get("aging", {}),
+            "discovery": {
+                "ok": report.get("discovery", {}).get("ok"),
+                "candidates": report.get("discovery", {}).get("candidates"),
+                "duplicates": report.get("discovery", {}).get("duplicates"),
+                "reachable": report.get("discovery", {}).get("reachable"),
+                "seed_total": report.get("discovery", {}).get("seed_total"),
+                "error": report.get("discovery", {}).get("error"),
+            },
             "publish": report.get("publish"),
             "credential_source": report.get("credential_source"),
         },
