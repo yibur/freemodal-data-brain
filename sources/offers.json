@@ -48,6 +48,24 @@
       "_verified_by": "AI 辅助核验，待用户拍板",
       "_source_url": "https://www.recraft.ai/pricing",
       "_source_title": "Pricing and plans - Recraft（官方）"
+    },
+    {
+      "provider": "阿里云百炼 · 通义万相",
+      "modality": "image",
+      "quota": { "unit": "count", "amount": 50, "period": "once" },
+      "watermark": "conditional",
+      "commercial_rights": "unknown",
+      "queue_speed": "normal",
+      "resolution": "variable",
+      "status": "verified",
+      "money_basis": "official_price",
+      "note": "官方定价页「万相图像生成与编辑」小节原文：「说明以下模型仅在华北2（北京）地域下有免费额度，其他地域均无免费额度。」表头注「有效期：自开通百炼/模型发布/申请通过之日起90天内（以较晚者为准）」，表内三行原文：wan2.7-image-pro 0.50元/张 50张；wan2.7-image 0.20元/张 50张；wan2.6-image 0.20元/张 无。官方《新人免费额度》页原文：「当您首次开通阿里云百炼时，平台会自动为您发放各模型的新人专属免费额度。」「免费额度的有效期为 90 天，从开通阿里云百炼、模型发布或模型申请通过之日起计算（以较晚者为准）。」「免费额度过期后自动失效，不支持补发、延期或重置」「同一实名认证主体下重新注册账号，无法再次领取新人免费额度。」→ period=once：一次性发放、90 天有效，不是每日/每月循环（同页按月发放的额度都明写「每月1日0点自动发放」，万相表格无此表述）；起算方式为开通/模型发布/申请通过三者较晚者，官方未给固定截止日期，故不填 deadline。地域仅华北2（北京）。额度按模型独立：原文「不同模型（含同一模型的不同快照版本）的免费额度相互独立，不互通、不共享」→ 本条 amount=50 指单一型号的 50 张，两个有额度的型号各 50 张、合计最多 100 张，未把两个型号相加；wan2.6-image 官方标「无」。「万相文生图」小节另注明「以下模型所有地域均无免费额度」。官方同页说明额度用完后「自动转为按量付费」。水印、商用授权、排队速度、分辨率四项官方计费页未说明：watermark=conditional、queue_speed=normal、resolution=variable 为中性占位、非实测值，commercial_rights=unknown 为诚实未知。核验日期 2026-11-14（UTC），以官方最新公告为准。",
+      "_verified_at": "2026-11-14T12:47:36+00:00",
+      "_anchor_checked_at": "2026-11-14T12:47:36+00:00",
+      "_official_homepage_confirmed": true,
+      "_verified_by": "AI 辅助核验，待用户拍板",
+      "_source_url": "https://help.aliyun.com/zh/model-studio/model-pricing",
+      "_source_title": "阿里云百炼模型价格-大模型服务平台百炼(Model Studio)-阿里云帮助中心"
     }
   ]
 }
